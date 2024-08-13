@@ -5,6 +5,9 @@
 package xzot1k.plugins.ds;
 
 import me.arcaniax.hdb.api.HeadDatabaseAPI;
+import me.devtec.shared.Ref;
+import me.devtec.shared.versioning.VersionUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -69,10 +72,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
     private SimpleDateFormat dateFormat;
     private ProfileCache profileCache;
 
-    public Class<?> displayPacketClass;//craftPlayerClass, packetOpenWindowClass
-    private double serverVersion;
-    // Version handlers
-    private String versionPackageName;
+    public Class<?> displayPacketClass;
     private VersionUtil versionUtil;
 
     // Virtual data handlers
@@ -117,26 +117,27 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         saveDefaultConfigs();
         saveDefaultMenuConfigs();
 
-        final String packageName = getServer().getClass().getPackage().getName();
+        try {
+            Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null ? Ref.getClass("net.kyori.adventure.Adventure") != null ? Ref.ServerType.PAPER : Ref.ServerType.SPIGOT : Ref.ServerType.BUKKIT,
+                    Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]);
+        } catch (Exception e) {
+            String version = (String) Ref.invoke(Bukkit.getServer(), "getMinecraftVersion");
+            VersionUtils.Version ver = VersionUtils.getVersion(version, "1.20.5");
+            if (ver == VersionUtils.Version.SAME_VERSION || ver == VersionUtils.Version.NEWER_VERSION)
+                Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null ? Ref.getClass("net.kyori.adventure.Adventure") != null ? Ref.ServerType.PAPER : Ref.ServerType.SPIGOT : Ref.ServerType.BUKKIT,
+                        version);
+        }
 
-        // setServerVersion(Double.parseDouble(packageName.replace(".", ",").split(",")[3]
-        //         .substring(1).replace("_R", ".").replaceAll("[rvV_]*", "")));
-        // versionPackageName = packageName.substring(packageName.lastIndexOf('.') + 1);
+        if(getConfig().getBoolean("use-item-displays-if-available")){
+            if((Ref.serverVersionInt()==19&&Ref.serverVersionRelease()==4) || Ref.isNewerThan(19) &&Ref.serverType()==Ref.ServerType.PAPER) {
+                displayManager = new DisplayManager();
+                log(Level.INFO,"Using ItemDisplays! Beware of possible higher server usage!");
+            }else
+                log(Level.WARNING,"Server is not compatible with ItemDisplays! Only 1.19.4+ and Paper");
+        }
 
-        // 1.20.5-1.20.6 changed packaging, so the server version is formatted as v1_20_6_R1
-        String[] args = getServer().getClass().getPackage().getName().split("\\.");
-
-        if (args.length > 3) {
-            versionPackageName = packageName.substring(packageName.lastIndexOf('.') + 1);
-            setServerVersion(Double.parseDouble(packageName.replace(".", ",").split(",")[3]
-                    .substring(1).replace("_R", ".").replaceAll("[rvV_]*", "")));
-        } else {
-            // 1.20.6-R0.1-SNAPSHOT
-            versionPackageName = getServer().getBukkitVersion().replaceAll("(-R.*)$", "");
-            setServerVersion(Double.parseDouble(versionPackageName.replace(".", "")));
-
-            displayManager = new DisplayManager();
-            if (getPluginInstance().getDisplayManager() != null) {Display.ClearAllEntities();}
+        if (getPluginInstance().getDisplayManager() != null) {
+            Display.ClearAllEntities();
         }
 
         fixConfig();
@@ -153,7 +154,9 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
 
         try {
             setup();
-        } catch (ClassNotFoundException e) {e.printStackTrace();}
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Plugin is not compatible with this server version! Your server version: "+Ref.serverVersion());
+        }
 
         if (getDisplayManager() != null) {Display.ClearAllEntities();}
 
@@ -241,9 +244,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         });
 
         setupTasks();
-        double version = Math.floor(getServerVersion());
-        log(Level.INFO, "Fully loaded and enabled with " + (getDisplayManager() != null ? versionPackageName : (version / (version >= 100 ? 100 : 10)))
-                + " packets (Took " + (System.currentTimeMillis() - startTime) + "ms).");
+        log(Level.INFO, "Fully loaded and enabled with " +Ref.serverVersion() +" packets (Took " + (System.currentTimeMillis() - startTime) + "ms).");
 
         if (getDescription().getVersion().toLowerCase().contains("build") || getDescription().getVersion().toLowerCase().contains("snapshot"))
             log(Level.WARNING, "You are currently running an 'EXPERIMENTAL' build. Please ensure to watch your "
@@ -302,7 +303,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
             }
 
 
-        if (Math.floor(getServerVersion()) >= 1_16) {
+        if (Ref.isNewerThan(16)) {
             try {
                 getServer().removeRecipe(new org.bukkit.NamespacedKey(this, "display-shop"));
             } catch (NoClassDefFoundError e) {
@@ -591,10 +592,10 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         if (getConfig().getBoolean("shop-creation-item.craftable")) {
             try {
                 ShapedRecipe shapedRecipe;
-                if (Math.floor(getServerVersion()) >= 1_9) {
+                if (Ref.serverVersionInt()>=9) {
                     org.bukkit.NamespacedKey namespacedKey = new org.bukkit.NamespacedKey(this, "shop");
 
-                    if ((Math.floor(getServerVersion()) >= 1_16)) {
+                    if (Ref.serverVersionInt()>=16) {
                         Recipe recipe = getServer().getRecipe(namespacedKey);
                         if (recipe != null) getServer().removeRecipe(namespacedKey);
                     }
@@ -854,12 +855,19 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         }
 
         try {
-            Class<?> vUtilClass = Class.forName("xzot1k.plugins.ds.nms." + getVersionPackageName() + ".VUtil");
+            String version = Ref.serverVersion().replace(".","_");
+            if(!version.startsWith("v"))
+                version="v"+version;
+
+
+            Class<?> vUtilClass = Class.forName("xzot1k.plugins.ds.nms." + version + ".VUtil");
             versionUtil = (VersionUtil) vUtilClass.getDeclaredConstructor().newInstance();
-            displayPacketClass = Class.forName("xzot1k.plugins.ds.nms." + getVersionPackageName() + ".DPacket");
+            displayPacketClass = Class.forName("xzot1k.plugins.ds.nms." + version + ".DPacket");
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
-            this.versionUtil = new xzot1k.plugins.ds.nms.v1_20_R3.VUtil();
-            displayPacketClass = xzot1k.plugins.ds.nms.v1_20_R3.DPacket.class;
+
+            /*this.versionUtil = new xzot1k.plugins.ds.nms.v1_21_R1.VUtil();
+            displayPacketClass = xzot1k.plugins.ds.nms.v1_21_R1.DPacket.class;*/
+
         }
 
         // this.craftPlayerClass = Class.forName("org.bukkit.craftbukkit." + getVersionPackageName() + ".entity.CraftPlayer");
@@ -990,7 +998,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
     }
 
     public void fixConfig() {
-        if (getServerVersion() < 1_13) {
+        if (Ref.isOlderThan(13)) {
             /*final String shopBlock = getConfig().getString("shop-block-material");
             if (shopBlock == null || shopBlock.isEmpty() || shopBlock.toUpperCase().contains("END_PORTAL_FRAME"))
                 getConfig().set("shop-block-material", "ENDER_PORTAL_FRAME:0");*/
@@ -1001,7 +1009,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                 if (value.toUpperCase().contains("END_STONE")) recipeSection.set(entry.getKey(), value.replace("END_STONE", "ENDER_STONE"));
             }
 
-            if (getServerVersion() < 1_9) {
+            if (Ref.isOlderThan(9)) {
                 ConfigurationSection immersionSection = getConfig().getConfigurationSection("immersion-section");
                 if (immersionSection != null) for (Map.Entry<String, Object> entry : immersionSection.getValues(true).entrySet()) {
                     final String value = String.valueOf(entry.getValue());
@@ -1010,7 +1018,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                     else if (value.equalsIgnoreCase("ENTITY_ENDERMAN_TELEPORT")) immersionSection.set(entry.getKey(), "ENDERMAN_TELEPORT");
                     else if (value.equalsIgnoreCase("ENTITY_SNOWBALL_THROW")) immersionSection.set(entry.getKey(), "SHOOT_ARROW");
                 }
-            } else if (getServerVersion() >= 1_9) {
+            } else if (Ref.serverVersionInt() >= 9) {
                 ConfigurationSection immersionSection = getConfig().getConfigurationSection("immersion-section");
                 if (immersionSection != null) for (Map.Entry<String, Object> entry : immersionSection.getValues(true).entrySet()) {
                     final String value = String.valueOf(entry.getValue());
@@ -1302,11 +1310,11 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
     /**
      * @return Server version in the format XXX.X where the decimal digit is the 'R' version.
      */
-    public double getServerVersion() {return serverVersion;}
+/*    public double getServerVersion() {return serverVersion;}*/
 
-    private void setServerVersion(double serverVersion) {this.serverVersion = serverVersion;}
+/*    private void setServerVersion(double serverVersion) {this.serverVersion = serverVersion;}*/
 
-    public String getVersionPackageName() {return versionPackageName;}
+/*    public String getVersionPackageName() {return versionPackageName;}*/
 
     public Connection getDatabaseConnection() {
         return databaseConnection;

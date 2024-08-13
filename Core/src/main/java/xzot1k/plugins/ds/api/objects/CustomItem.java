@@ -6,6 +6,7 @@ package xzot1k.plugins.ds.api.objects;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import me.devtec.shared.Ref;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -67,7 +68,7 @@ public class CustomItem {
 
     public CustomItem(ItemStack itemStack, Shop shop, int unitItemMaxStack, int unitCount) {
         this.pluginInstance = DisplayShops.getPluginInstance();
-        this.isNew = (Math.floor(getPluginInstance().getServerVersion()) > 1_12);
+        this.isNew = (Ref.isNewerThan(12));
         this.papiHere = (getPluginInstance().getPapiHelper() != null);
         this.itemStack = itemStack;
         this.shop = shop;
@@ -76,7 +77,7 @@ public class CustomItem {
     }
 
     private void constructorHelper(String materialName, int durability, int amount) {
-        this.isNew = (Math.floor(getPluginInstance().getServerVersion()) > 1_12);
+        this.isNew = Ref.isNewerThan(12);
         this.papiHere = (getPluginInstance().getPapiHelper() != null);
 
         if (materialName == null || materialName.isEmpty()) {
@@ -98,7 +99,7 @@ public class CustomItem {
                 if (skullMeta != null && materialArgs[1] != null && !materialArgs[1].equalsIgnoreCase("")) {
                     try {
                         UUID uuid = UUID.fromString(materialArgs[1]);
-                        if (pluginInstance.getServerVersion() >= 1_18) {
+                        if (Ref.isNewerThan(17)) {
                             try {
                                 org.bukkit.profile.PlayerProfile profile = pluginInstance.getServer().createPlayerProfile(uuid);
                                 org.bukkit.profile.PlayerTextures textures = profile.getTextures();
@@ -132,7 +133,7 @@ public class CustomItem {
                 byte[] decodedBytes = Base64.getDecoder().decode(base64);
                 UUID uuid = UUID.nameUUIDFromBytes(decodedBytes);
 
-                if (pluginInstance.getServerVersion() < 1_18) {
+                if (Ref.isOlderThan(18)) {
                     GameProfile profile = new GameProfile(uuid, uuid.toString().substring(0, 16));
                     profile.getProperties().put("textures", new Property("textures", base64));
 

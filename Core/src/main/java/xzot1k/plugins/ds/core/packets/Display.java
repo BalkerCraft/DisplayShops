@@ -33,7 +33,9 @@ public class Display {
         for (World world : DisplayShops.getPluginInstance().getServer().getWorlds()) {
             for (Entity entity : world.getEntities()) {
                 if ((entity.getType() == EntityType.ARMOR_STAND || entity.getType() == EntityType.ITEM_FRAME || entity.getType().name().endsWith("_DISPLAY"))
-                        && (entity.hasMetadata("DisplayShops-Entity") || entity.getPersistentDataContainer().has(key))) {entity.remove();}
+                        && (entity.hasMetadata("DisplayShops-Entity") || entity.getPersistentDataContainer().has(key))) {
+                    entity.remove();
+                }
             }
         }
 
@@ -127,10 +129,14 @@ public class Display {
                     1.4 + y + (appearanceOffsets != null ? appearanceOffsets[1] : 0), 0.5 + z + (appearanceOffsets != null ? appearanceOffsets[2] : 0));
 
             for (ItemDisplay itemDisplay : newLocation.getNearbyEntitiesByType(ItemDisplay.class, 1)) {
-                if (!itemDisplay.getPersistentDataContainer().has(key)) {continue;}
+                if (!itemDisplay.getPersistentDataContainer().has(key)) {
+                    continue;
+                }
 
                 String value = itemDisplay.getPersistentDataContainer().get(key, PersistentDataType.STRING);
-                if (value == null || !value.equals("item")) {continue;}
+                if (value == null || !value.equals("item")) {
+                    continue;
+                }
 
                 itemDisplay.remove();
                 getEntityIds().remove(itemDisplay.getUniqueId());
@@ -149,14 +155,20 @@ public class Display {
                 entity.setMetadata("DisplayShops-Entity", new FixedMetadataValue(DisplayShops.getPluginInstance(), ""));
                 entity.getPersistentDataContainer().set(key, PersistentDataType.STRING, "item");
 
-                if (getEntityIds().contains(entity.getUniqueId())) {getEntityIds().add(entity.getUniqueId());}
+                if (getEntityIds().contains(entity.getUniqueId())) {
+                    getEntityIds().add(entity.getUniqueId());
+                }
 
                 Matrix4f mat = new Matrix4f().scale(scale);
                 entity.setTransformationMatrix(mat);
 
-                if (DisplayShops.getPluginInstance().getConfig().getBoolean("allow-item-spinning")) {rotateDisplay(entity, mat, scale, 5);}
+                if (DisplayShops.getPluginInstance().getConfig().getBoolean("allow-item-spinning")) {
+                    rotateDisplay(entity, mat, scale, 5);
+                }
             });
-        } else {((ItemDisplay) getItemHolder()).setItemStack(item);}
+        } else {
+            ((ItemDisplay) getItemHolder()).setItemStack(item);
+        }
 
         //getItemHolder().setRotation(baseLocation.getYaw() + addYaw, baseLocation.getPitch() + addPitch);
 
@@ -259,10 +271,12 @@ public class Display {
     public String generateText() {
         List<String> hologramFormat;
         if (shop.getShopItem() != null) {
-            if (shop.getOwnerUniqueId() == null) hologramFormat = DisplayShops.getPluginInstance().getConfig().getStringList("admin-shop-format");
+            if (shop.getOwnerUniqueId() == null)
+                hologramFormat = DisplayShops.getPluginInstance().getConfig().getStringList("admin-shop-format");
             else hologramFormat = DisplayShops.getPluginInstance().getConfig().getStringList("valid-item-format");
         } else {
-            if (shop.getOwnerUniqueId() == null) hologramFormat = DisplayShops.getPluginInstance().getConfig().getStringList("admin-invalid-item-format");
+            if (shop.getOwnerUniqueId() == null)
+                hologramFormat = DisplayShops.getPluginInstance().getConfig().getStringList("admin-invalid-item-format");
             else hologramFormat = DisplayShops.getPluginInstance().getConfig().getStringList("invalid-item-format");
         }
 
@@ -435,7 +449,8 @@ public class Display {
         //if (lineEntity == null || lineEntity.isDead()) {continue;}
 
         // if (player.canSee(lineEntity)) {
-        if (getTextDisplay() != null && getTextDisplay().isValid()) player.hideEntity(DisplayShops.getPluginInstance(), getTextDisplay());
+        if (getTextDisplay() != null && getTextDisplay().isValid())
+            player.hideEntity(DisplayShops.getPluginInstance(), getTextDisplay());
         //}
         //}
 
@@ -503,15 +518,25 @@ public class Display {
 
     //public Item getItem() {return item;}
 
-    public Shop getShop() {return shop;}
+    public Shop getShop() {
+        return shop;
+    }
 
-    public Entity getGlass() {return blockDisplay;}
+    public Entity getGlass() {
+        return blockDisplay;
+    }
 
-    public Entity getItemHolder() {return itemDisplay;}
+    public Entity getItemHolder() {
+        return itemDisplay;
+    }
 
-    public Entity getTextDisplay() {return textDisplay;}
+    public Entity getTextDisplay() {
+        return textDisplay;
+    }
 
-    public List<UUID> getEntityIds() {return entityIds;}
+    public List<UUID> getEntityIds() {
+        return entityIds;
+    }
 
     //public ItemFrame getItemFrame() {return itemFrame;}
 }

@@ -1,5 +1,6 @@
 package xzot1k.plugins.ds.api.objects;
 
+import me.devtec.shared.Ref;
 import org.bukkit.Axis;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -247,7 +248,7 @@ public class DAppearance extends Appearance {
             block.setType(material);
 
             if (player != null) {
-                final boolean isOld = ((Math.floor(DisplayShops.getPluginInstance().getServerVersion()) <= 1_12));
+                final boolean isOld = Ref.isOlderThan(13);
                 if (isOld) try {
                     @SuppressWarnings("JavaReflectionMemberAccess") Method method = Block.class.getMethod("setData", byte.class);
                     method.invoke(baseBlockLocation.getBlock(), ((byte) (durability < 0 ? oppositeDirectionByte(Direction.getYaw(player)) : durability)));

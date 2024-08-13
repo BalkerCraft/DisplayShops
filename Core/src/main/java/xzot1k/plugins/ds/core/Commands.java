@@ -4,6 +4,7 @@
 
 package xzot1k.plugins.ds.core;
 
+import me.devtec.shared.Ref;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.ItemTag;
@@ -762,8 +763,7 @@ public class Commands implements CommandExecutor {
             return;
         }
 
-        final ItemStack handItem = (Math.floor(this.getPluginInstance().getServerVersion()) >= 1_9
-                ? player.getInventory().getItemInMainHand() : player.getInventory().getItemInHand());
+        final ItemStack handItem = Ref.isNewerThan(8) ? player.getInventory().getItemInMainHand() : player.getInventory().getItemInHand();
         if (handItem == null || handItem.getType().name().contains("AIR")) {
             getPluginInstance().getManager().sendMessage(player, getPluginInstance().getLangConfig().getString("no-hand-item"));
             return;
@@ -797,8 +797,8 @@ public class Commands implements CommandExecutor {
             return;
         }
 
-        final ItemStack handItem = (Math.floor(this.getPluginInstance().getServerVersion()) >= 1_9
-                ? player.getInventory().getItemInMainHand() : player.getInventory().getItemInHand());
+        final ItemStack handItem = Ref.isNewerThan(8)
+                ? player.getInventory().getItemInMainHand() : player.getInventory().getItemInHand();
         if (handItem == null || handItem.getType().name().contains("AIR")) {
             getPluginInstance().getManager().sendMessage(player, getPluginInstance().getLangConfig().getString("no-hand-item"));
             return;
@@ -880,7 +880,7 @@ public class Commands implements CommandExecutor {
 
             HoverEvent hoverEvent = null;
             if (shop.getShopItem() != null) {
-                final ItemTag itemTag = ItemTag.ofNbt(shop.getShopItem().getItemMeta() == null ? null : (getPluginInstance().getServerVersion() > 1_17
+                final ItemTag itemTag = ItemTag.ofNbt(shop.getShopItem().getItemMeta() == null ? null : (Ref.isNewerThan(17)
                         ? shop.getShopItem().getItemMeta().getAsString() : shop.getShopItem().getItemMeta().toString()));
                 hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_ITEM, new Item(shop.getShopItem().getType().getKey().toString(),
                         Math.min(shop.getShopItemAmount(), shop.getShopItem().getType().getMaxStackSize()), itemTag));
@@ -969,7 +969,7 @@ public class Commands implements CommandExecutor {
             if (shop.getShopItem() != null) {
 
                 final ItemTag itemTag = ItemTag.ofNbt(shop.getShopItem().getItemMeta() == null ? null :
-                        (getPluginInstance().getServerVersion() > 1_17 ? shop.getShopItem().getItemMeta().getAsString()
+                        (Ref.isNewerThan(17) ? shop.getShopItem().getItemMeta().getAsString()
                                 : shop.getShopItem().getItemMeta().toString()));
 
                 textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new Item(shop.getShopItem().getType().getKey().toString(),

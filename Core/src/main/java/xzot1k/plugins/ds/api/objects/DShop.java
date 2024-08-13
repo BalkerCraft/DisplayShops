@@ -4,6 +4,7 @@
 
 package xzot1k.plugins.ds.api.objects;
 
+import me.devtec.shared.Ref;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -378,7 +379,7 @@ public class DShop implements Shop {
         Location safeLocation = null, baseLocation = getBaseLocation().asBukkitLocation();
         final Block block = baseLocation.getBlock();
 
-        if (DisplayShops.getPluginInstance().getServerVersion() >= 1.13) {
+        if (Ref.isNewerThan(12)) {
             if (block.getBlockData() instanceof org.bukkit.block.data.Directional) {
                 org.bukkit.block.data.Directional directional = (org.bukkit.block.data.Directional) block.getBlockData();
                 if (directional.getFacing() != BlockFace.UP) {

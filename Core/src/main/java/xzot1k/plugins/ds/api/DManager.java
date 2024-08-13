@@ -4,6 +4,7 @@
 
 package xzot1k.plugins.ds.api;
 
+import me.devtec.shared.Ref;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.*;
@@ -486,9 +487,8 @@ public class DManager implements Manager {
     public String getItemName(@NotNull ItemStack itemStack) {
         if (itemStack.hasItemMeta() && itemStack.getItemMeta() != null && itemStack.getItemMeta().hasDisplayName())
             return itemStack.getItemMeta().getDisplayName();//.replace("\"", "\\\"").replace("'", "\\'");
-        else return ((Math.floor(getPluginInstance().getServerVersion()) <= 1_13)
-                ? getPluginInstance().getManager().getTranslatedName(itemStack.getType(), itemStack.getDurability())
-                : getPluginInstance().getManager().getTranslatedName(itemStack.getType()));
+        else return Ref.serverVersionInt()>=13 ? getPluginInstance().getManager().getTranslatedName(itemStack.getType(), itemStack.getDurability())
+                : getPluginInstance().getManager().getTranslatedName(itemStack.getType());
         //.replace("\"", "\\\"").replace("'", "\\'");
     }
 
@@ -533,7 +533,7 @@ public class DManager implements Manager {
      * @return The translated version.
      */
     public String getTranslatedName(@NotNull Enchantment enchantment) {
-        final boolean isNew = (Math.floor(getPluginInstance().getServerVersion()) > 1_12);
+        final boolean isNew = (Ref.serverVersionInt()>12);
         ConfigurationSection cs = getPluginInstance().getLangConfig().getConfigurationSection("translated-enchantment-names");
         if (cs != null) {
             Collection<String> keys = cs.getKeys(false);
@@ -672,7 +672,7 @@ public class DManager implements Manager {
      */
     public String color(@NotNull String message) {
         if (message.isEmpty()) return message;
-        if (Math.floor(getPluginInstance().getServerVersion()) >= 1_16) {
+        if (Ref.serverVersionInt()>=16) {
             Matcher matcher = hexPattern.matcher(message);
             while (matcher.find()) {
                 final ChatColor hexColor = ChatColor.of(matcher.group());
@@ -1366,7 +1366,7 @@ public class DManager implements Manager {
     public int getInventorySpaceForItem(@NotNull Player player, @NotNull ItemStack itemStack) {
         int availableSpace = 0;
 
-        if (getPluginInstance().getServerVersion() >= 1_9) {
+        if (Ref.serverVersionInt()>=9) {
             ItemStack[] contents = player.getInventory().getStorageContents();
             for (int i = -1; ++i < contents.length; ) {
                 final ItemStack item = contents[i];

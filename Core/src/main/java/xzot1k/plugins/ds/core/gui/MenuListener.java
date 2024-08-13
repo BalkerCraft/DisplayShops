@@ -1,5 +1,6 @@
 package xzot1k.plugins.ds.core.gui;
 
+import me.devtec.shared.Ref;
 import net.md_5.bungee.api.ChatColor;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.apache.commons.lang.WordUtils;
@@ -2487,12 +2488,12 @@ public class MenuListener implements Listener {
 
     // helper methods
     public void playClickSound(@NotNull Player player) {
-        player.playSound(player.getLocation(), Math.floor(INSTANCE.getServerVersion()) >= 1_9
+        player.playSound(player.getLocation(), Ref.isNewerThan(8)
                 ? Sound.valueOf("UI_BUTTON_CLICK") : Sound.valueOf("CLICK"), 1, 1);
     }
 
     public String getInventoryName(@NotNull Inventory inventory, @NotNull InventoryView inventoryView) {
-        if ((Math.floor(INSTANCE.getServerVersion()) >= 1_14)) return inventoryView.getTitle();
+        if (Ref.isNewerThan(13)) return inventoryView.getTitle();
         else {
             try {
                 Method method = inventory.getClass().getMethod("getTitle");

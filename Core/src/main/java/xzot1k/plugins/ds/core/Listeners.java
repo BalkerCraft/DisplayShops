@@ -4,6 +4,7 @@
 
 package xzot1k.plugins.ds.core;
 
+import me.devtec.shared.Ref;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Axis;
 import org.bukkit.GameMode;
@@ -102,8 +103,8 @@ public class Listeners implements Listener {
         if (e.getClickedBlock() == null || (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getItem() != null
                 && e.getItem().getType().name().contains("SIGN"))) return;
 
-        final boolean isOffhandVersion = (Math.floor(getPluginInstance().getServerVersion()) >= 1_9);
-        if (isOffhandVersion && Math.floor(getPluginInstance().getServerVersion()) >= 1_12 && e.getHand() != EquipmentSlot.HAND)
+        final boolean isOffhandVersion = Ref.isNewerThan(8);
+        if (isOffhandVersion && Ref.isNewerThan(11) && e.getHand() != EquipmentSlot.HAND)
             return;
 
         final DataPack dataPack = getPluginInstance().getManager().getDataPack(e.getPlayer());
@@ -111,7 +112,7 @@ public class Listeners implements Listener {
         final ItemStack handItem = (isOffhandVersion ? e.getPlayer().getInventory().getItemInMainHand() : e.getPlayer().getItemInHand());
 
         if (dataPack.isInSelectionMode()) {
-            if (isOffhandVersion && getPluginInstance().getServerVersion() > 1_12 && e.getHand() == EquipmentSlot.OFF_HAND) {
+            if (isOffhandVersion && Ref.isNewerThan(12) && e.getHand() == EquipmentSlot.OFF_HAND) {
                 e.setCancelled(true);
                 return;
             }
@@ -177,7 +178,7 @@ public class Listeners implements Listener {
 
             if (e.getClickedBlock() != null) {
                 final String blockType = e.getClickedBlock().getType().name();
-                if (getPluginInstance().getServerVersion() > 1_13) {
+                if (Ref.isNewerThan(13)) {
                     if (e.getClickedBlock() instanceof org.bukkit.block.Container) {
                         getPluginInstance().getServer().getScheduler().runTaskLater(getPluginInstance(), () -> {
                             e.getPlayer().closeInventory();
@@ -925,10 +926,12 @@ public class Listeners implements Listener {
 
         if (forceSingleStack && handItem.getAmount() > 1) {
             handItem.setAmount(handItem.getAmount() - 1);
-            if (Math.floor(getPluginInstance().getServerVersion()) >= 1_9) player.getInventory().setItemInMainHand(handItem);
+            if (Ref.isNewerThan(8))
+                player.getInventory().setItemInMainHand(handItem);
             else player.setItemInHand(handItem);
         } else {
-            if (Math.floor(getPluginInstance().getServerVersion()) >= 1_9) player.getInventory().setItemInMainHand(null);
+            if (Ref.isNewerThan(8))
+                player.getInventory().setItemInMainHand(null);
             else player.setItemInHand(null);
         }
 
@@ -1073,7 +1076,7 @@ public class Listeners implements Listener {
         MarketRegion marketRegion = getPluginInstance().getManager().getMarketRegion(block.getLocation());
         if (marketRegion != null) {
             getPluginInstance().getServer().getScheduler().runTaskLater(getPluginInstance(), () -> {
-                if ((Math.floor(this.getPluginInstance().getServerVersion()) <= 1_10)) {
+                if (Ref.isOlderThan(11)) {
                     block.setType(Material.AIR);
                     block.setType(creationItem.getType());
                     block.setBlockData(getPluginInstance().getServer().createBlockData(creationItem.getType()));

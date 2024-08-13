@@ -1,5 +1,6 @@
 package xzot1k.plugins.ds.core.gui;
 
+import me.devtec.shared.Ref;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Location;
@@ -181,7 +182,7 @@ public class BackendMenu extends YamlConfiguration implements Menu {
 
                     if (mat.toUpperCase().startsWith("HEAD")) continue; // skip custom heads
 
-                    if (INSTANCE.getServerVersion() < 1_13) {
+                    if (Ref.isOlderThan(13)) {
                         // wool
                         if (mat.equalsIgnoreCase("LIME_WOOL")) getConfiguration().set(entry.getKey(), "WOOL:5");
                         else if (mat.equalsIgnoreCase("RED_WOOL")) getConfiguration().set(entry.getKey(), "WOOL:14");
@@ -204,7 +205,7 @@ public class BackendMenu extends YamlConfiguration implements Menu {
                         else if (mat.equalsIgnoreCase("BLACK_STAINED_GLASS_PANE")) getConfiguration().set(entry.getKey(), "STAINED_GLASS_PANE:15");
                         else if (mat.toUpperCase().contains("STAINED_GLASS_PANE")) getConfiguration().set(entry.getKey(), "STAINED_GLASS_PANE:15");
 
-                    } else if (INSTANCE.getServerVersion() >= 1_13) {
+                    } else if (Ref.isNewerThan(12)) {
 
                         // wool
                         if (mat.equalsIgnoreCase("WOOL:5")) getConfiguration().set(entry.getKey(), "LIME_WOOL");
@@ -219,7 +220,7 @@ public class BackendMenu extends YamlConfiguration implements Menu {
                             // minecart
                         else if (mat.equalsIgnoreCase("STORAGE_MINECART")) getConfiguration().set(entry.getKey(), "CHEST_MINECART");
                             // sign
-                        else if (INSTANCE.getServerVersion() >= 1_14 && mat.equalsIgnoreCase("SIGN")) getConfiguration().set(entry.getKey(), "OAK_SIGN");
+                        else if (Ref.isNewerThan(13) && mat.equalsIgnoreCase("SIGN")) getConfiguration().set(entry.getKey(), "OAK_SIGN");
                             // end portal frame
                         else if (mat.equalsIgnoreCase("ENDER_PORTAL_FRAME")) getConfiguration().set(entry.getKey(), "END_PORTAL_FRAME");
                             // player head

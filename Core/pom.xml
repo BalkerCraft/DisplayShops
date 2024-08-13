@@ -307,6 +307,24 @@
             <version>1.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>xzot1k.plugins.ds</groupId>
+            <artifactId>v1_21_r1</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>xzot1k.plugins.ds</groupId>
+            <artifactId>v1_20_r4</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>xzot1k.plugins.ds</groupId>
+            <artifactId>v1_21</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
         <!-- NMS END -->
 
         <dependency>
@@ -319,6 +337,12 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>24.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.TheDevTec</groupId>
+            <artifactId>TheAPI-Shared</artifactId>
+            <version>12.9.6</version>
             <scope>compile</scope>
         </dependency>
 
