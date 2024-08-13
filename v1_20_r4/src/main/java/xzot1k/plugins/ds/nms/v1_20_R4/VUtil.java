@@ -36,15 +36,12 @@ public class VUtil implements VersionUtil {
     public String getNBT(@NotNull ItemStack itemStack, @NotNull String nbtTag) {
         final net.minecraft.world.item.ItemStack item = CraftItemStack.asNMSCopy(itemStack);
         if(item.e()){
-            System.out.println("EMPTY_NBT");
             return null;
         }
         CustomData data = item.a(DataComponents.b);
         if(data!=null){
-            System.out.println("GET_NBT: "+nbtTag);
             return data.c().l(nbtTag);
         }
-        System.out.println("RETURN_EMPTY_NBT");
         return null;
     }
 
@@ -52,7 +49,6 @@ public class VUtil implements VersionUtil {
     public ItemStack updateNBT(@NotNull ItemStack itemStack, @NotNull String nbtTag, @NotNull String value) {
         final net.minecraft.world.item.ItemStack item = CraftItemStack.asNMSCopy(itemStack);
         if(item.e()){
-            System.out.println("RETURN_UPDATE_EMPTY_NBT");
             return CraftItemStack.asBukkitCopy(item);
         }
         CustomData d = item.a(DataComponents.b);
@@ -62,7 +58,6 @@ public class VUtil implements VersionUtil {
         }
         nbt.a(nbtTag,value);
         item.b(DataComponents.b,CustomData.a(nbt));
-        System.out.println("UPDATED_NBT?: "+item);
         return CraftItemStack.asBukkitCopy(item);
     }
 

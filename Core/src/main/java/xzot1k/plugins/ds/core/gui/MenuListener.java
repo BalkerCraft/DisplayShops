@@ -2579,7 +2579,7 @@ public class MenuListener implements Listener {
             if (!isInfinite && ((shop.getStock() + amountToRemove) > maxStock))
                 amountToRemove = (amountToRemove - ((shop.getStock() + amountToRemove) - maxStock));
 
-            System.out.println("Remove " + amountToRemove);
+
             INSTANCE.getManager().removeItem(player.getInventory(), shop.getShopItem(), amountToRemove);
             dataPack.updateCurrentTransactionLimitCounter(shop, false, dataPack.getCurrentTransactionCounter(shop, false) + unitCount);
 
