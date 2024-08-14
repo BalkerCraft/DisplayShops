@@ -487,7 +487,7 @@ public class DManager implements Manager {
     public String getItemName(@NotNull ItemStack itemStack) {
         if (itemStack.hasItemMeta() && itemStack.getItemMeta() != null && itemStack.getItemMeta().hasDisplayName())
             return itemStack.getItemMeta().getDisplayName();//.replace("\"", "\\\"").replace("'", "\\'");
-        else return Ref.serverVersionInt()>=13 ? getPluginInstance().getManager().getTranslatedName(itemStack.getType(), itemStack.getDurability())
+        else return Ref.isNewerThan(12) ? getPluginInstance().getManager().getTranslatedName(itemStack.getType(), itemStack.getDurability())
                 : getPluginInstance().getManager().getTranslatedName(itemStack.getType());
         //.replace("\"", "\\\"").replace("'", "\\'");
     }
@@ -533,7 +533,7 @@ public class DManager implements Manager {
      * @return The translated version.
      */
     public String getTranslatedName(@NotNull Enchantment enchantment) {
-        final boolean isNew = (Ref.serverVersionInt()>12);
+        final boolean isNew = (Ref.isNewerThan(12));
         ConfigurationSection cs = getPluginInstance().getLangConfig().getConfigurationSection("translated-enchantment-names");
         if (cs != null) {
             Collection<String> keys = cs.getKeys(false);
@@ -672,7 +672,7 @@ public class DManager implements Manager {
      */
     public String color(@NotNull String message) {
         if (message.isEmpty()) return message;
-        if (Ref.serverVersionInt()>=16) {
+        if (Ref.isNewerThan(15)) {
             Matcher matcher = hexPattern.matcher(message);
             while (matcher.find()) {
                 final ChatColor hexColor = ChatColor.of(matcher.group());
@@ -1366,7 +1366,7 @@ public class DManager implements Manager {
     public int getInventorySpaceForItem(@NotNull Player player, @NotNull ItemStack itemStack) {
         int availableSpace = 0;
 
-        if (Ref.serverVersionInt()>=9) {
+        if (Ref.isNewerThan(8)) {
             ItemStack[] contents = player.getInventory().getStorageContents();
             for (int i = -1; ++i < contents.length; ) {
                 final ItemStack item = contents[i];

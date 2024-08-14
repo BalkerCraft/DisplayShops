@@ -8,7 +8,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import xzot1k.plugins.ds.DisplayShops;
@@ -158,13 +157,9 @@ public class Display {
                 if (getEntityIds().contains(entity.getUniqueId())) {
                     getEntityIds().add(entity.getUniqueId());
                 }
+                entity.setTransformationMatrix(new Matrix4f().scale(scale));
 
-                Matrix4f mat = new Matrix4f().scale(scale);
-                entity.setTransformationMatrix(mat);
 
-                if (DisplayShops.getPluginInstance().getConfig().getBoolean("allow-item-spinning")) {
-                    rotateDisplay(entity, mat, scale, 5);
-                }
             });
         } else {
             ((ItemDisplay) getItemHolder()).setItemStack(item);
@@ -197,7 +192,7 @@ public class Display {
         getItemHolder().addPassenger(getItem()); // add item as passenger*/
     }
 
-    private void rotateDisplay(ItemDisplay display, Matrix4f mat, float scale, int duration) {
+   /* private void rotateDisplay(ItemDisplay display, Matrix4f mat, float scale, int duration) {
         final float rotationIncrement = (float) Math.toRadians(5); // Rotate 5 degrees per tick
         final float[] currentAngle = {0}; // Array to hold current angle
 
@@ -214,20 +209,18 @@ public class Display {
                     currentAngle[0] -= (float) Math.toRadians(360); // Reset the angle if it completes a full rotation
                 }
 
-                Matrix4f matrix = null;
-
                 ItemStack itemStack = display.getItemStack();
                 if (itemStack != null) {
                     if (itemStack.getType().name().contains("SHIELD")) {return;}
                 }
 
                 // Update the transformation matrix with the new rotation
-                display.setTransformationMatrix((matrix != null ? matrix : mat.identity()).scale(scale).rotateY(currentAngle[0]));
+                display.setTransformationMatrix(mat.identity().scale(scale).rotateY(currentAngle[0]));
                 display.setInterpolationDelay(0); // no delay to the interpolation
                 display.setInterpolationDuration(duration); // set the duration of the interpolated rotation
             }
-        }.runTaskTimer(DisplayShops.getPluginInstance(), 1, duration);
-    }
+        }.runTaskTimer(DisplayShops.getPluginInstance(), 15, duration);
+    }*/
 
     private void updateGlass(World world, Location baseLocation, double[] appearanceOffsets) {
         // return if glass is supposed to be hidden

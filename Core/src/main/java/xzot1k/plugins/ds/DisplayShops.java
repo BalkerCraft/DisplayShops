@@ -136,11 +136,11 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                 log(Level.WARNING,"Server is not compatible with ItemDisplays! Only 1.19.4+ and Paper");
         }
 
-        if (getPluginInstance().getDisplayManager() != null) {
+        fixConfig();
+
+        if (getDisplayManager() != null) {
             Display.ClearAllEntities();
         }
-
-        fixConfig();
 
         menuMap = new HashMap<>();
         shopMemory = new HashMap<>();
@@ -158,7 +158,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
             throw new RuntimeException("Plugin is not compatible with this server version! Your server version: "+Ref.serverVersion());
         }
 
-        if (getDisplayManager() != null) {Display.ClearAllEntities();}
+
 
         setPaperSpigot(false);
         Method[] methods = World.class.getMethods();
@@ -240,7 +240,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         getServer().getScheduler().runTask(this, () -> {
             getManager().loadShops(false, false);
             getManager().loadMarketRegions(false);
-            getServer().getOnlinePlayers().parallelStream().forEach(player -> getManager().loadDataPack(player));
+            getServer().getOnlinePlayers().forEach(player -> getManager().loadDataPack(player));
         });
 
         setupTasks();
@@ -592,10 +592,10 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         if (getConfig().getBoolean("shop-creation-item.craftable")) {
             try {
                 ShapedRecipe shapedRecipe;
-                if (Ref.serverVersionInt()>=9) {
+                if (Ref.isNewerThan(8)) {
                     org.bukkit.NamespacedKey namespacedKey = new org.bukkit.NamespacedKey(this, "shop");
 
-                    if (Ref.serverVersionInt()>=16) {
+                    if (Ref.isNewerThan(15)) {
                         Recipe recipe = getServer().getRecipe(namespacedKey);
                         if (recipe != null) getServer().removeRecipe(namespacedKey);
                     }
@@ -800,9 +800,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         }
 
         setInSightTask(new VisualTask(this));
-        //if (getDisplayManager() != null) {getInSightTask().runTaskTimer(this, 1, getConfig().getInt("view-tick"));} else {
-        getInSightTask().runTaskTimerAsynchronously(this, 60, 4/*getConfig().getInt("view-tick")*/);
-        //  }
+        getInSightTask().runTaskTimerAsynchronously(this, 60, 4);
 
         setVisitItemTask(new VisitItemTask(this));
         getVisitItemTask().runTaskTimerAsynchronously(this, 20, (20 * 5));
@@ -1018,7 +1016,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                     else if (value.equalsIgnoreCase("ENTITY_ENDERMAN_TELEPORT")) immersionSection.set(entry.getKey(), "ENDERMAN_TELEPORT");
                     else if (value.equalsIgnoreCase("ENTITY_SNOWBALL_THROW")) immersionSection.set(entry.getKey(), "SHOOT_ARROW");
                 }
-            } else if (Ref.serverVersionInt() >= 9) {
+            } else if (Ref.isNewerThan(8)) {
                 ConfigurationSection immersionSection = getConfig().getConfigurationSection("immersion-section");
                 if (immersionSection != null) for (Map.Entry<String, Object> entry : immersionSection.getValues(true).entrySet()) {
                     final String value = String.valueOf(entry.getValue());

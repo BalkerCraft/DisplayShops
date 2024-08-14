@@ -4,11 +4,14 @@
 
 package xzot1k.plugins.ds.core.tasks;
 
+import me.devtec.shared.Ref;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.joml.Matrix4f;
 import xzot1k.plugins.ds.DisplayShops;
 import xzot1k.plugins.ds.api.objects.Appearance;
 import xzot1k.plugins.ds.api.objects.Shop;
@@ -21,8 +24,6 @@ import java.util.UUID;
 public class VisualTask extends BukkitRunnable {
 
     private DisplayShops pluginInstance;
-    private int //viewDistance,
-            gcCounter;
     private boolean alwaysDisplay, pause = false;
     private LinkedList<UUID> shopsToRefresh, playersToRefresh;
 
@@ -30,9 +31,7 @@ public class VisualTask extends BukkitRunnable {
         setPluginInstance(pluginInstance);
         setShopsToRefresh(new LinkedList<>());
         setPlayersToRefresh(new LinkedList<>());
-        setGcCounter(0);
         setAlwaysDisplay(getPluginInstance().getConfig().getBoolean("always-display"));
-        //setViewDistance(getPluginInstance().getConfig().getInt("view-distance"));
     }
 
     @Override
@@ -102,8 +101,16 @@ public class VisualTask extends BukkitRunnable {
 
                 float finalCurrentScale = currentScale;
                 double finalX = x, finalY = y, finalZ = z;
-                DisplayShops.getPluginInstance().getServer().getScheduler().runTask(DisplayShops.getPluginInstance(),
-                        () -> display.update(world, generateText, finalCurrentScale, finalX, finalY, finalZ, offsets));
+                DisplayShops.getPluginInstance().getServer().getScheduler().runTask(DisplayShops.getPluginInstance(), () -> {
+                    display.update(world, generateText, finalCurrentScale, finalX, finalY, finalZ, offsets);
+                });
+
+                if (DisplayShops.getPluginInstance().getConfig().getBoolean("allow-item-spinning")) {
+                    Matrix4f mat = new Matrix4f().scale(finalCurrentScale);
+                    rotateDisplay((ItemDisplay) Ref.get(display,"itemDisplay"), mat, finalCurrentScale, 5);
+                }
+
+
 
                 for (Player player : getPluginInstance().getServer().getOnlinePlayers()) {
                     if (player == null || !player.isOnline()) {continue;}
@@ -158,7 +165,8 @@ public class VisualTask extends BukkitRunnable {
                         player.getEyeLocation().toVector(), player.getEyeLocation().getDirection(), 10/*getViewDistance()*/);
 
                 if (foundShopAtLocation == null) {
-                    if (currentShop != null) getPluginInstance().sendDisplayPacket(currentShop, player, false);
+                    if (currentShop != null)
+                        getPluginInstance().sendDisplayPacket(currentShop, player, false);
                     getPluginInstance().getShopMemory().remove(player.getUniqueId());
                     continue;
                 }
@@ -174,11 +182,36 @@ public class VisualTask extends BukkitRunnable {
                 getPluginInstance().getShopMemory().put(player.getUniqueId(), foundShopAtLocation.getShopId());
             }
         }
+    }
 
-       /* if (!isNew && getPluginInstance().getConfig().getBoolean("run-gc-immediately") && getGcCounter() >= 15) {
-            setGcCounter(0);
-            System.gc();
-        }*/
+
+    private float currentAngle = 0;
+
+    private void rotateDisplay(ItemDisplay display, Matrix4f mat,float scale,int duration){
+        final float rotationIncrement = (float) Math.toRadians(2); // Rotate 2 degrees per tick
+
+        if (display == null || display.isDead() || !display.isValid()) { // display was removed from the world, abort task
+            return;
+        }
+
+        currentAngle += rotationIncrement; // Increment the angle
+        if (currentAngle >= Math.toRadians(360)) {
+            currentAngle -= (float) Math.toRadians(360); // Reset the angle if it completes a full rotation
+        }
+
+        ItemStack itemStack = display.getItemStack();
+        if (itemStack != null) {
+            if (itemStack.getType().name().contains("SHIELD")) {
+                return;
+            }
+        }
+
+        // Update the transformation matrix with the new rotation
+        Bukkit.getScheduler().scheduleSyncDelayedTask(pluginInstance, ()->{
+            display.setTransformationMatrix(mat.identity().scale(scale).rotateY(currentAngle));
+            display.setInterpolationDelay(0); // no delay to the interpolation
+            display.setInterpolationDuration(duration); // set the duration of the interpolated rotation
+        });
     }
 
     public void refreshShop(Shop shop) {
@@ -205,14 +238,6 @@ public class VisualTask extends BukkitRunnable {
         this.pluginInstance = pluginInstance;
     }
 
-    /*public int getViewDistance() {
-        return viewDistance;
-    }*/
-
-   /* private void setViewDistance(int viewDistance) {
-        this.viewDistance = viewDistance;
-    }*/
-
     private boolean isAlwaysDisplay() {
         return alwaysDisplay;
     }
@@ -235,14 +260,6 @@ public class VisualTask extends BukkitRunnable {
 
     private void setPlayersToRefresh(LinkedList<UUID> playersToRefresh) {
         this.playersToRefresh = playersToRefresh;
-    }
-
-    public int getGcCounter() {
-        return gcCounter;
-    }
-
-    public void setGcCounter(int gcCounter) {
-        this.gcCounter = gcCounter;
     }
 
     public boolean isPaused() {
