@@ -8,6 +8,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import xzot1k.plugins.ds.DisplayShops;
@@ -19,6 +20,8 @@ public class Display {
 
     public static NamespacedKey key = new NamespacedKey(DisplayShops.getPluginInstance(), "DisplayShops-Entity");
     public static final ItemStack barrier = new ItemStack(Material.BARRIER);
+
+    private static final LegacyComponentSerializer SECTION = LegacyComponentSerializer.legacySection();
 
     private final Shop shop;
     private Entity textDisplay, itemDisplay, blockDisplay;
@@ -192,11 +195,15 @@ public class Display {
         getItemHolder().addPassenger(getItem()); // add item as passenger*/
     }
 
-   /* private void rotateDisplay(ItemDisplay display, Matrix4f mat, float scale, int duration) {
-        final float rotationIncrement = (float) Math.toRadians(5); // Rotate 5 degrees per tick
-        final float[] currentAngle = {0}; // Array to hold current angle
+    private BukkitTask displayTask;
 
-        new BukkitRunnable() {
+/*    private void rotateDisplay(ItemDisplay display, Matrix4f mat, float scale, int duration) {
+        if(displayTask!=null&& !displayTask.isCancelled()){
+            return;
+        }
+        displayTask=new BukkitRunnable() {
+            final float rotationIncrement = (float) Math.toRadians(5); // Rotate 5 degrees per tick
+            float currentAngle = 0F; // Array to hold current angle
             @Override
             public void run() {
                 if (display == null || display.isDead() || !display.isValid()) { // display was removed from the world, abort task
@@ -204,9 +211,9 @@ public class Display {
                     return;
                 }
 
-                currentAngle[0] += rotationIncrement; // Increment the angle
-                if (currentAngle[0] >= Math.toRadians(360)) {
-                    currentAngle[0] -= (float) Math.toRadians(360); // Reset the angle if it completes a full rotation
+                currentAngle += rotationIncrement; // Increment the angle
+                if (currentAngle >= Math.toRadians(360)) {
+                    currentAngle -= (float) Math.toRadians(360); // Reset the angle if it completes a full rotation
                 }
 
                 ItemStack itemStack = display.getItemStack();
@@ -215,11 +222,11 @@ public class Display {
                 }
 
                 // Update the transformation matrix with the new rotation
-                display.setTransformationMatrix(mat.identity().scale(scale).rotateY(currentAngle[0]));
+                display.setTransformationMatrix(mat.identity().scale(scale).rotateY(currentAngle));
                 display.setInterpolationDelay(0); // no delay to the interpolation
                 display.setInterpolationDuration(duration); // set the duration of the interpolated rotation
             }
-        }.runTaskTimer(DisplayShops.getPluginInstance(), 15, duration);
+        }.runTaskTimer(DisplayShops.getPluginInstance(), 10, duration);
     }*/
 
     private void updateGlass(World world, Location baseLocation, double[] appearanceOffsets) {
@@ -316,6 +323,8 @@ public class Display {
         return DisplayShops.getPluginInstance().getManager().color(text.toString());
     }
 
+    private String prevText="";
+
     private void updateLines(World world, Location baseLocation, String text, double[] appearanceOffsets) {
         double x = (0.5 + baseLocation.getX() + (appearanceOffsets != null ? appearanceOffsets[0] : 0)),
                 y = (1.8 + baseLocation.getY() + (appearanceOffsets != null ? appearanceOffsets[1] : 0)),
@@ -374,7 +383,10 @@ public class Display {
                 if (getEntityIds().contains(entity.getUniqueId())) {getEntityIds().add(entity.getUniqueId());}
             });
         } else {
-            ((TextDisplay) getTextDisplay()).text(LegacyComponentSerializer.legacySection().deserialize(text));
+            if(!prevText.equals(text)) {
+                ((TextDisplay) getTextDisplay()).text(SECTION.deserialize(text));
+                prevText=text;
+            }
             getTextDisplay().teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
         }
 

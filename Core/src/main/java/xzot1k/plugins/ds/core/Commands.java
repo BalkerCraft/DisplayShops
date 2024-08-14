@@ -5,6 +5,10 @@
 package xzot1k.plugins.ds.core;
 
 import me.devtec.shared.Ref;
+import me.devtec.shared.utility.StringUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.ItemTag;
@@ -1097,7 +1101,8 @@ public class Commands implements CommandExecutor {
             marketRegion.reset();
 
             final String message = getPluginInstance().getLangConfig().getString("market-region-reset");
-            if (message != null) getPluginInstance().getManager().sendMessage(player, message.replace("{id}", marketRegion.getMarketId()));
+            if (message != null)
+                getPluginInstance().getManager().sendMessage(player, message.replace("{id}", marketRegion.getMarketId()));
             return;
         }
 
@@ -1187,8 +1192,10 @@ public class Commands implements CommandExecutor {
             if (message != null && !message.equalsIgnoreCase("")) {
                 String status = getPluginInstance().getLangConfig().getString(isUnlock ? "unlocked" : "locked");
                 if (status != null) message = message.replace("{status}", status);
-                if (isPlayer) getPluginInstance().getManager().sendMessage((Player) commandSender, message.replace("{player}", player.getName()));
-                else commandSender.sendMessage(getPluginInstance().getManager().color(message.replace("{player}", player.getName())));
+                if (isPlayer)
+                    getPluginInstance().getManager().sendMessage((Player) commandSender, message.replace("{player}", player.getName()));
+                else
+                    commandSender.sendMessage(getPluginInstance().getManager().color(message.replace("{player}", player.getName())));
             }
         } else {
             Appearance appearance = Appearance.getAppearance(args[2]);
@@ -1211,8 +1218,10 @@ public class Commands implements CommandExecutor {
             if (message != null && !message.equalsIgnoreCase("")) {
                 String status = getPluginInstance().getLangConfig().getString(isUnlock ? "unlocked" : "locked");
                 if (status != null) message = message.replace("{status}", status);
-                if (isPlayer) getPluginInstance().getManager().sendMessage((Player) commandSender, message.replace("{player}", player.getName()));
-                else commandSender.sendMessage(getPluginInstance().getManager().color(message.replace("{player}", player.getName())));
+                if (isPlayer)
+                    getPluginInstance().getManager().sendMessage((Player) commandSender, message.replace("{player}", player.getName()));
+                else
+                    commandSender.sendMessage(getPluginInstance().getManager().color(message.replace("{player}", player.getName())));
             }
         }
     }
@@ -1527,6 +1536,22 @@ public class Commands implements CommandExecutor {
                     .replace("{count}", getPluginInstance().getManager().formatNumber(cleanCount, false))));
     }
 
+    private final MiniMessage mm = MiniMessage.miniMessage();
+
+    private Component getAuthors() {
+        String authorFormat = "<click:open_url:\"https://github.com/<author>\"><hover:show_text:\"<aqua>Click to see <yellow><author>'s</yellow> Github</aqua>\"><author></hover></click>";
+        Component authors = Component.empty();
+        int i = 0;
+        List<String> authors1 = getPluginInstance().getDescription().getAuthors();
+        for (String author : authors1) {
+            authors = authors.append(mm.deserialize(authorFormat, Placeholder.parsed("author", author)));
+            if (i != authors1.size())
+                authors = authors.append(Component.text(", "));
+            i++;
+        }
+        return authors;
+    }
+
     private void runInfo(CommandSender commandSender) {
         if (!commandSender.hasPermission("displayshops.info")) {
             String message = getPluginInstance().getLangConfig().getString("no-permission");
@@ -1535,13 +1560,28 @@ public class Commands implements CommandExecutor {
             return;
         }
 
-        commandSender.sendMessage(getPluginInstance().getManager().color("\n&e<&m------------&r&e[ &bDisplayShops &e]&m------------&r&e>\n" +
+        String message = "\n<yellow><<st>------------</st>[ <aqua>DisplayShops</aqua> ]<st>------------</st>>\n" +
+                "<gray>Current Plugin Version:</gray> <plversion>\n" +
+                "<gray>Latest Released Version:</gray> <green><plreleasedver></green>\n" +
+                "<gray>Author(s):</gray><aqua> <authors>\n" +
+                "<yellow><<st>-------------------------------------</st>>";
+
+        String pluginVersion = (getPluginInstance().getDescription().getVersion().toLowerCase().contains("build") ? "<red>" : "<green>") + getPluginInstance().getDescription().getVersion();
+        String releasedVersion = (getPluginInstance().getDescription().getVersion().toLowerCase().contains("snapshot") ? "<dark_blue>" : "<green>") + getPluginInstance().getLatestVersion();
+        if(Ref.serverType()== Ref.ServerType.PAPER) {
+            commandSender.sendMessage(mm.deserialize(message
+                    , Placeholder.parsed("plversion", pluginVersion)
+                    , Placeholder.parsed("plreleasedver", releasedVersion)
+                    , Placeholder.component("authors", this::getAuthors)));
+        }else {
+            commandSender.sendMessage(getPluginInstance().getManager().color("\n&e<&m------------&r&e[ &bDisplayShops &e]&m------------&r&e>\n" +
                 "&7Current Plugin Version: " + (getPluginInstance().getDescription().getVersion().toLowerCase().contains("build") ? "&c" : "&a")
                 + getPluginInstance().getDescription().getVersion() + "\n" +
                 "&7Latest Release Plugin Version: " + (getPluginInstance().getDescription().getVersion().toLowerCase().contains("snapshot") ? "&1" : "&a")
                 + getPluginInstance().getLatestVersion() + "\n"
-                + "&7Author(s): &bXZot1K\n" +
+                + "&7Author(s): &b" + StringUtils.join(getPluginInstance().getDescription().getAuthors(), ", ") + "\n" +
                 "&e<&m-------------------------------------&r&e>\n"));
+        }
     }
 
     private void runCreateMarket(CommandSender commandSender, String[] args) {

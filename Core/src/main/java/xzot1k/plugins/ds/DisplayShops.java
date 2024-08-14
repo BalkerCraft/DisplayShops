@@ -155,6 +155,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         try {
             setup();
         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
             throw new RuntimeException("Plugin is not compatible with this server version! Your server version: "+Ref.serverVersion());
         }
 
@@ -857,20 +858,28 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
             if(!version.startsWith("v"))
                 version="v"+version;
 
-
             Class<?> vUtilClass = Class.forName("xzot1k.plugins.ds.nms." + version + ".VUtil");
             versionUtil = (VersionUtil) vUtilClass.getDeclaredConstructor().newInstance();
             displayPacketClass = Class.forName("xzot1k.plugins.ds.nms." + version + ".DPacket");
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException | ClassNotFoundException e) {
+            String version = Ref.serverVersion().replace(".","_");
+            if(!version.startsWith("v"))
+                version="v"+version;
+            String[] split = version.split("_");
 
-            /*this.versionUtil = new xzot1k.plugins.ds.nms.v1_21_R1.VUtil();
-            displayPacketClass = xzot1k.plugins.ds.nms.v1_21_R1.DPacket.class;*/
-
+            version=split[0]+"_"+split[1]+"_R"+split[2];
+            try {
+                Class<?> vUtilClass = Class.forName("xzot1k.plugins.ds.nms." + version + ".VUtil");
+                versionUtil = (VersionUtil) vUtilClass.getDeclaredConstructor().newInstance();
+                displayPacketClass = Class.forName("xzot1k.plugins.ds.nms." + version + ".DPacket");
+            } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e2) {
+                e2.printStackTrace();
+            }
         }
 
-        // this.craftPlayerClass = Class.forName("org.bukkit.craftbukkit." + getVersionPackageName() + ".entity.CraftPlayer");
-        // this.packetOpenWindowClass = Class.forName("net.minecraft.server." + getVersionPackageName() + ".PacketPlayOutOpenWindow");
     }
+
+
 
     public String toString(@NotNull ItemStack itemStack) {
         YamlConfiguration itemConfig = new YamlConfiguration();
@@ -1221,7 +1230,8 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
     public void removeDisplayPacket(@NotNull Shop shop, @NotNull Player player) {
         if (!getDisplayPacketMap().isEmpty() && getDisplayPacketMap().containsKey(player.getUniqueId())) {
             HashMap<UUID, DisplayPacket> packetMap = getDisplayPacketMap().getOrDefault(player.getUniqueId(), null);
-            if (packetMap != null) packetMap.remove(shop.getShopId());
+            if (packetMap != null)
+                packetMap.remove(shop.getShopId());
         }
     }
 

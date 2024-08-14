@@ -20,7 +20,6 @@ import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EnumItemSlot;
-import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_20_R4.CraftRegistry;
 import org.bukkit.craftbukkit.v1_20_R4.entity.CraftPlayer;
@@ -80,7 +79,9 @@ public class DPacket implements DisplayPacket {
                     final int id = idGenerator.get();
                     getEntityIds().add(id);
 
-                    PacketPlayOutSpawnEntity itemPacket = new PacketPlayOutSpawnEntity(id, UUID.randomUUID(), x, (y + 1.325), z, 0, 0, EntityTypes.ag, 1, new Vec3D(0, 0, 0), 0);
+/*                    PacketPlayOutSpawnEntity itemPacket = new PacketPlayOutSpawnEntity(id, UUID.randomUUID(), x, (y + 1.325), z, 0, 0, EntityTypes.ag, 1, new Vec3D(0, 0, 0), 0);*/
+                    RegistryFriendlyByteBuf bd = buildSerializer(id, true, x, (y + 1.325), z);
+                    PacketPlayOutSpawnEntity itemPacket = PacketPlayOutSpawnEntity.a.decode(bd);
                     sendPacket(playerConnection, itemPacket);
 
                     RegistryFriendlyByteBuf bb = new RegistryFriendlyByteBuf(Unpooled.buffer(), CraftRegistry.getMinecraftRegistry());

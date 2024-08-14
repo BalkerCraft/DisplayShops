@@ -5,7 +5,6 @@
 package xzot1k.plugins.ds.core.tasks;
 
 import me.devtec.shared.Ref;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
@@ -17,6 +16,7 @@ import xzot1k.plugins.ds.api.objects.Appearance;
 import xzot1k.plugins.ds.api.objects.Shop;
 import xzot1k.plugins.ds.core.packets.Display;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -26,17 +26,20 @@ public class VisualTask extends BukkitRunnable {
     private DisplayShops pluginInstance;
     private boolean alwaysDisplay, pause = false;
     private LinkedList<UUID> shopsToRefresh, playersToRefresh;
+    private final boolean isItemSpinning;
 
     public VisualTask(DisplayShops pluginInstance) {
         setPluginInstance(pluginInstance);
         setShopsToRefresh(new LinkedList<>());
         setPlayersToRefresh(new LinkedList<>());
         setAlwaysDisplay(getPluginInstance().getConfig().getBoolean("always-display"));
+        isItemSpinning = DisplayShops.getPluginInstance().getConfig().getBoolean("allow-item-spinning");
     }
 
     @Override
     public void run() {
-        if (isPaused() || getPluginInstance().getManager().getShopMap() == null || getPluginInstance().getManager().getShopMap().isEmpty()) return;
+        if (isPaused() || getPluginInstance().getManager().getShopMap() == null || getPluginInstance().getManager().getShopMap().isEmpty())
+            return;
 
         boolean isNew = getPluginInstance().getDisplayManager() != null;
 
@@ -48,7 +51,9 @@ public class VisualTask extends BukkitRunnable {
                 World world = DisplayShops.getPluginInstance().getServer().getWorld(shop.getBaseLocation().getWorldName());
                 if (world == null) {continue;}
 
-                if (!world.isChunkLoaded((int) shop.getBaseLocation().getX() >> 4, (int) shop.getBaseLocation().getZ() >> 4)) {continue;}
+                if (!world.isChunkLoaded((int) shop.getBaseLocation().getX() >> 4, (int) shop.getBaseLocation().getZ() >> 4)) {
+                    continue;
+                }
 
                 Display display = getPluginInstance().getDisplayManager().getDisplay(shop.getShopId());
                 if (display == null || shop.getBaseLocation() == null) {continue;}
@@ -82,7 +87,9 @@ public class VisualTask extends BukkitRunnable {
                             if (itemBuilder != null) {matches = true;}
                         }
 
-                        if (!matches && !item.getType().name().contains(args[0].toUpperCase().replace(" ", "_").replace("-", "_"))) {continue;}
+                        if (!matches && !item.getType().name().contains(args[0].toUpperCase().replace(" ", "_").replace("-", "_"))) {
+                            continue;
+                        }
 
                         String[] offsets = args[1].split(",");
                         if (offsets.length < 4) {continue;}
@@ -104,12 +111,10 @@ public class VisualTask extends BukkitRunnable {
                 DisplayShops.getPluginInstance().getServer().getScheduler().runTask(DisplayShops.getPluginInstance(), () -> {
                     display.update(world, generateText, finalCurrentScale, finalX, finalY, finalZ, offsets);
                 });
-
-                if (DisplayShops.getPluginInstance().getConfig().getBoolean("allow-item-spinning")) {
+                if (isItemSpinning) {
                     Matrix4f mat = new Matrix4f().scale(finalCurrentScale);
-                    rotateDisplay((ItemDisplay) Ref.get(display,"itemDisplay"), mat, finalCurrentScale, 5);
+                    rotateDisplay(display, mat, finalCurrentScale, 5);
                 }
-
 
 
                 for (Player player : getPluginInstance().getServer().getOnlinePlayers()) {
@@ -184,13 +189,21 @@ public class VisualTask extends BukkitRunnable {
         }
     }
 
+    private final HashMap<UUID,Float> map = new HashMap<>();
 
-    private float currentAngle = 0;
+    private void rotateDisplay(Display ddisplay, Matrix4f mat, float scale, int duration) {
+        ItemDisplay display = (ItemDisplay) Ref.get(ddisplay, "itemDisplay");
+        if(display==null)
+            return;
+        if(!getPluginInstance().isEnabled())
+            return; // Prevent creating tasks if the plugin is disabling (as that would throw exceptions)
 
-    private void rotateDisplay(ItemDisplay display, Matrix4f mat,float scale,int duration){
-        final float rotationIncrement = (float) Math.toRadians(2); // Rotate 2 degrees per tick
+        final float rotationIncrement = (float) Math.toRadians(10); // Rotate 10 degrees per tick
+        /*float currentAngle = 0F;*/ // Array to hold current angle
+        float currentAngle = map.getOrDefault(display.getUniqueId(),0F);
 
-        if (display == null || display.isDead() || !display.isValid()) { // display was removed from the world, abort task
+        if (display.isDead() || !display.isValid()) { // display was removed from the world, abort task
+            cancel();
             return;
         }
 
@@ -198,20 +211,17 @@ public class VisualTask extends BukkitRunnable {
         if (currentAngle >= Math.toRadians(360)) {
             currentAngle -= (float) Math.toRadians(360); // Reset the angle if it completes a full rotation
         }
+        map.put(display.getUniqueId(),currentAngle);
 
         ItemStack itemStack = display.getItemStack();
         if (itemStack != null) {
-            if (itemStack.getType().name().contains("SHIELD")) {
-                return;
-            }
+            if (itemStack.getType().name().contains("SHIELD")) {return;}
         }
 
         // Update the transformation matrix with the new rotation
-        Bukkit.getScheduler().scheduleSyncDelayedTask(pluginInstance, ()->{
-            display.setTransformationMatrix(mat.identity().scale(scale).rotateY(currentAngle));
-            display.setInterpolationDelay(0); // no delay to the interpolation
-            display.setInterpolationDuration(duration); // set the duration of the interpolated rotation
-        });
+        display.setTransformationMatrix(mat.identity().scale(scale).rotateY(currentAngle));
+        display.setInterpolationDelay(0); // no delay to the interpolation
+        display.setInterpolationDuration(duration); // set the duration of the interpolated rotation
     }
 
     public void refreshShop(Shop shop) {
