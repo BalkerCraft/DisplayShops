@@ -3,7 +3,10 @@ package xzot1k.plugins.ds.core.packets;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.ItemDisplay;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -14,7 +17,10 @@ import org.joml.Matrix4f;
 import xzot1k.plugins.ds.DisplayShops;
 import xzot1k.plugins.ds.api.objects.Shop;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 public class Display {
 
@@ -29,29 +35,6 @@ public class Display {
 
     public Display(@NotNull Shop shop) {
         this.shop = shop;
-    }
-
-    public static void ClearAllEntities() {
-        for (World world : DisplayShops.getPluginInstance().getServer().getWorlds()) {
-            for (Entity entity : world.getEntities()) {
-                if ((entity.getType() == EntityType.ARMOR_STAND || entity.getType() == EntityType.ITEM_FRAME || entity.getType().name().endsWith("_DISPLAY"))
-                        && (entity.hasMetadata("DisplayShops-Entity") || entity.getPersistentDataContainer().has(key))) {
-                    entity.remove();
-                }
-            }
-        }
-
-        for (Map.Entry<UUID, Display> entry : DisplayShops.getPluginInstance().getDisplayManager().getShopDisplays().entrySet()) {
-            Display display = entry.getValue();
-            if (display.getItemHolder() != null) {display.getItemHolder().remove();}
-            if (display.getGlass() != null) {display.getGlass().remove();}
-            if (display.getTextDisplay() != null) {display.getTextDisplay().remove();}
-
-            World world = DisplayShops.getPluginInstance().getServer().getWorld(display.getShop().getBaseLocation().getWorldName());
-            if (world != null) {
-                world.getEntities().stream().filter(entity -> display.getEntityIds().contains(entity.getUniqueId())).forEach(Entity::remove);
-            }
-        }
     }
 
     public void Clear() {

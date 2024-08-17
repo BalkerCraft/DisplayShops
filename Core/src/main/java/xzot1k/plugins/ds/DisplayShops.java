@@ -16,6 +16,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
@@ -138,9 +140,8 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
 
         fixConfig();
 
-        if (getDisplayManager() != null) {
-            Display.ClearAllEntities();
-        }
+        ClearAllEntities();
+
 
         menuMap = new HashMap<>();
         shopMemory = new HashMap<>();
@@ -255,11 +256,37 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                     + getLatestVersion() + "'. You are currently running '" + getDescription().getVersion() + "'.");
     }
 
+    public static void ClearAllEntities() {
+        for (World world : DisplayShops.getPluginInstance().getServer().getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                if ((entity.getType() == EntityType.ARMOR_STAND || entity.getType() == EntityType.ITEM_FRAME || entity.getType().name().endsWith("_DISPLAY"))
+                        && (entity.hasMetadata("DisplayShops-Entity") || entity.getPersistentDataContainer().has(Display.key))) {
+                    entity.remove();
+                }
+            }
+        }
+        if(getPluginInstance().getDisplayManager()==null)
+            return;
+
+        for (Map.Entry<UUID, Display> entry : DisplayShops.getPluginInstance().getDisplayManager().getShopDisplays().entrySet()) {
+            Display display = entry.getValue();
+            if (display.getItemHolder() != null) {display.getItemHolder().remove();}
+            if (display.getGlass() != null) {display.getGlass().remove();}
+            if (display.getTextDisplay() != null) {display.getTextDisplay().remove();}
+
+            World world = DisplayShops.getPluginInstance().getServer().getWorld(display.getShop().getBaseLocation().getWorldName());
+            if (world != null) {
+                world.getEntities().stream().filter(entity -> display.getEntityIds().contains(entity.getUniqueId())).forEach(Entity::remove);
+            }
+        }
+    }
+
     @Override
     public void onDisable() {
         getServer().getScheduler().cancelTasks(this);
 
-        if (getDisplayManager() != null) {Display.ClearAllEntities();}
+        ClearAllEntities();
+
 
         if (getManager() != null) {
             final int[] shopSaveCount = {0};

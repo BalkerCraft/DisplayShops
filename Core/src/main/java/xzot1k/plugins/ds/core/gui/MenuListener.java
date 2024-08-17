@@ -908,8 +908,8 @@ public class MenuListener implements Listener {
                     }
 
                     sellableUnits = Math.min(sellableUnits, ((int) remainingLimit));
-                } else if (shop.getGlobalSellLimit() > 0) {
-                    long remainingLimit = dataPack.getCurrentTransactionCounter(shop, false);
+                } else if (shop.getPlayerBuyLimit() > 0) {
+                    long remainingLimit = shop.getPlayerSellLimit()-dataPack.getCurrentTransactionCounter(shop, false);
                     if (remainingLimit <= 0) {
                         player.closeInventory();
                         INSTANCE.getManager().sendMessage(player, INSTANCE.getLangConfig().getString("sell-limit-exceeded"));

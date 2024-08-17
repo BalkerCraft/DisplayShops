@@ -1466,7 +1466,7 @@ public class Commands implements CommandExecutor {
         if (DisplayShops.getPluginInstance().getDisplayManager() != null) {
             DisplayShops.getPluginInstance().getInSightTask().setPaused(true);
 
-            Display.ClearAllEntities();
+            DisplayShops.ClearAllEntities();
 
             for (Map.Entry<UUID, Display> entry : new ArrayList<>(DisplayShops.getPluginInstance().getDisplayManager().getShopDisplays().entrySet())) {
                 entry.getValue().delete();
@@ -1843,7 +1843,7 @@ public class Commands implements CommandExecutor {
 
         // clear displays
         if (getPluginInstance().getDisplayManager() != null) {
-            Display.ClearAllEntities();
+            DisplayShops.ClearAllEntities();
 
             for (Map.Entry<UUID, Display> entry : new ArrayList<>(DisplayShops.getPluginInstance().getDisplayManager().getShopDisplays().entrySet())) {
                 entry.getValue().delete();
