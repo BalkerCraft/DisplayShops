@@ -7,6 +7,7 @@ package xzot1k.plugins.ds;
 import me.arcaniax.hdb.api.HeadDatabaseAPI;
 import me.devtec.shared.Ref;
 import me.devtec.shared.versioning.VersionUtils;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,7 +33,6 @@ import xzot1k.plugins.ds.api.enums.FoliaScheduler;
 import xzot1k.plugins.ds.api.handlers.Delegate;
 import xzot1k.plugins.ds.api.handlers.DisplayPacket;
 import xzot1k.plugins.ds.api.objects.DAppearance;
-import xzot1k.plugins.ds.api.objects.DataPack;
 import xzot1k.plugins.ds.api.objects.Menu;
 import xzot1k.plugins.ds.api.objects.Shop;
 import xzot1k.plugins.ds.core.Commands;
@@ -254,6 +254,8 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         else if (isOutdated())
             log(Level.INFO, "There seems to be a different version on the Spigot resource page '"
                     + getLatestVersion() + "'. You are currently running '" + getDescription().getVersion() + "'.");
+
+        metrics = new Metrics(getPluginInstance(), 23070);
     }
 
     public static void ClearAllEntities() {
@@ -281,8 +283,12 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         }
     }
 
+    private Metrics metrics;
+
     @Override
     public void onDisable() {
+        if(metrics!=null)
+            metrics.shutdown();
         getServer().getScheduler().cancelTasks(this);
 
         ClearAllEntities();
@@ -294,8 +300,8 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
             try {
                 final long shopCount = getManager().getShopMap().size(), shopCountPercentage = ((long) (shopCount * 0.15));
                 final long[] current = {0};
-                getManager().getShopMap().entrySet().parallelStream().forEach(entry -> {
-                    entry.getValue().save(false);
+                getManager().getShopMap().forEach((key, value) -> {
+                    value.save(false);
                     shopSaveCount[0]++;
                     current[0]++;
 
@@ -305,10 +311,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                 });
 
                 Statement statement = getDatabaseConnection().createStatement();
-                getManager().getDataPackMap().entrySet().parallelStream().forEach(entry -> {
-                    final DataPack dataPack = entry.getValue();
-                    getManager().saveDataPack(statement, entry.getKey(), dataPack, false, false);
-                });
+                getManager().getDataPackMap().forEach((key, dataPack) -> getManager().saveDataPack(statement, key, dataPack, false, false));
                 statement.close();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -318,7 +321,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
             getManager().saveMarketRegions();
             log(Level.INFO, "Successfully saved all data, including " + shopSaveCount[0] + " shops!");
 
-            getServer().getOnlinePlayers().parallelStream().forEach(this::clearDisplayPackets);
+            getServer().getOnlinePlayers().forEach(this::clearDisplayPackets);
         }
 
         if (getDatabaseConnection() != null)

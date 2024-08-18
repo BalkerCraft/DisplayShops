@@ -2493,7 +2493,8 @@ public class MenuListener implements Listener {
     }
 
     public String getInventoryName(@NotNull Inventory inventory, @NotNull InventoryView inventoryView) {
-        if (Ref.isNewerThan(13)) return inventoryView.getTitle();
+        if (Ref.isNewerThan(13))
+            return inventoryView.getTitle();
         else {
             try {
                 Method method = inventory.getClass().getMethod("getTitle");
