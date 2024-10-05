@@ -1,8 +1,10 @@
 **[Wiki](https://github.com/XZot1K/DisplayShopsAPI/wiki) | [Commands](https://github.com/XZot1K/DisplayShopsAPI/wiki/commands) | [Permissions](https://github.com/XZot1K/DisplayShopsAPI/wiki/permissions)
 | [How Does It Work?](https://github.com/XZot1K/DisplayShopsAPI/wiki/shop-guide) | [Developer API](https://github.com/XZot1K/DisplayShopsAPI/wiki/developer-api)
-| [Java Docs](https://xzot1k.github.io/DisplayShopsAPI/)**
+| [Java Docs](https://xzot1k.github.io/DisplayShopsAPI/) | [Usage statistics](https://bstats.org/plugin/bukkit/DisplayShops/23070)**
 
-## v2.0+ code is unde rthe "recode" branch while v1.7.x code (pre-2.0) is under the "master" branch
+<img src=https://bstats.org/signatures/bukkit/DisplayShops.svg>
+
+## v2.0+ code is under the "recode" branch while v1.7.x code (pre-2.0) is under the "master" branch
 
 This is the core DisplayShops source code, which depends on the [DisplayShopsAPI](https://github.com/XZot1K/DisplayShopsAPI). Sicne the core depends on the API, the DisplayShopsAPI will need to be cloned, built, and installed to your local Maven respository. 
 
@@ -21,3 +23,4 @@ Create immersive simplistic shops with animations, efficient transaction handlin
 * Ensure the DisplayShopsAPI is installed and linked to the core as a seperate module.
 * Run the "Build Jar" run configuration at the top-right of the IDE near the run/debug buttons. 
 * If successful, the JAR will be located in the "target" folder under the "Core" module folder found in the project directory.
+* 
