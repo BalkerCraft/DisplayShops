@@ -100,8 +100,16 @@ public class Listeners implements Listener {
     @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInteract(PlayerInteractEvent e) {
-        if (e.getClickedBlock() == null || (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getItem() != null
-                && e.getItem().getType().name().contains("SIGN"))) return;
+        if (e.getClickedBlock() == null) {
+            return;
+        }
+        boolean block =false;
+        if(e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getItem() != null && e.getItem().getType().name().contains("SIGN")){
+            if(e.getPlayer().isSneaking()){
+                return;
+            }
+            block=true;
+        }
 
         final boolean isOffhandVersion = Ref.isNewerThan(8);
         if (isOffhandVersion && Ref.isNewerThan(11) && e.getHand() != EquipmentSlot.HAND)
@@ -151,6 +159,10 @@ public class Listeners implements Listener {
 
         final Shop shop = getPluginInstance().getManager().getShop(e.getClickedBlock().getLocation());
         if (shop == null) return;
+        if(block){
+            e.setCancelled(true);
+            return;
+        }
 
         e.setCancelled(true);
 
