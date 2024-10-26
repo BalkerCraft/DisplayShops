@@ -5,6 +5,7 @@
 package xzot1k.plugins.ds.core.tasks;
 
 import me.devtec.shared.Ref;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
@@ -119,7 +120,27 @@ public class VisualTask extends BukkitRunnable {
 
                 for (Player player : getPluginInstance().getServer().getOnlinePlayers()) {
                     if (player == null || !player.isOnline()) {continue;}
-
+                    if (isAlwaysDisplay()) {
+                        double value = (double) DisplayShops.getPluginInstance().getConfig().getInt("always-display-radius", 15) / 2;
+                        Location min = shop.getBaseLocation().asBukkitLocation().clone().subtract(value, value, value);
+                        Location max = shop.getBaseLocation().asBukkitLocation().clone().add(value, value, value);
+                        boolean found = false;
+                        for (x = min.getBlockX(); x <= max.getBlockY(); x++) {
+                            for (y = min.getBlockY(); y <= max.getBlockY(); y++) {
+                                for (z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
+                                    if (player.getLocation().getBlockX() == x && player.getLocation().getBlockY() == y && player.getLocation().getBlockZ() == z) {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        boolean finalFound = found;
+                        DisplayShops.getPluginInstance().getServer().getScheduler().runTask(DisplayShops.getPluginInstance(), () -> {
+                            display.show(player, finalFound);
+                        });
+                        continue;
+                    }
                     final Shop foundShopAtLocation = getPluginInstance().getManager().getShopRayTraced(player.getWorld().getName(),
                             player.getEyeLocation().toVector(), player.getEyeLocation().getDirection(), 10/*getViewDistance()*/);
 
@@ -193,17 +214,16 @@ public class VisualTask extends BukkitRunnable {
 
     private void rotateDisplay(Display ddisplay, Matrix4f mat, float scale, int duration) {
         ItemDisplay display = (ItemDisplay) Ref.get(ddisplay, "itemDisplay");
-        if(display==null)
+        if (display == null)
             return;
-        if(!getPluginInstance().isEnabled())
+        if (!getPluginInstance().isEnabled())
             return; // Prevent creating tasks if the plugin is disabling (as that would throw exceptions)
 
         final float rotationIncrement = (float) Math.toRadians(10); // Rotate 10 degrees per tick
         /*float currentAngle = 0F;*/ // Array to hold current angle
-        float currentAngle = map.getOrDefault(display.getUniqueId(),0F);
+        float currentAngle = map.getOrDefault(display.getUniqueId(), 0F);
 
         if (display.isDead() || !display.isValid()) { // display was removed from the world, abort task
-            cancel();
             return;
         }
 
@@ -211,7 +231,7 @@ public class VisualTask extends BukkitRunnable {
         if (currentAngle >= Math.toRadians(360)) {
             currentAngle -= (float) Math.toRadians(360); // Reset the angle if it completes a full rotation
         }
-        map.put(display.getUniqueId(),currentAngle);
+        map.put(display.getUniqueId(), currentAngle);
 
         ItemStack itemStack = display.getItemStack();
         if (itemStack != null) {

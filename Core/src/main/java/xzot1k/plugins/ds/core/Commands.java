@@ -1863,7 +1863,7 @@ public class Commands implements CommandExecutor {
 
         Appearance.getAppearances().clear();
         getPluginInstance().getServer().getScheduler().runTaskAsynchronously(getPluginInstance(), () -> {
-            getPluginInstance().getManager().getShopMap().entrySet().parallelStream().forEach(entry -> entry.getValue().killAll());
+            getPluginInstance().getManager().getShopMap().forEach((key, value) -> value.killAll());
             DAppearance.loadAppearances();
         });
 
