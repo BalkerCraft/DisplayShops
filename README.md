@@ -19,6 +19,8 @@ Create immersive simplistic shops with animations, efficient transaction handlin
 
 ** NOTE: all major MC jar version releases will need to be built using BuildTools for the individual per-version modules up until 1.20.4 (you can remove or disable them, but code will need adjustments) 
 
+** NOTE: Plugin is compatible from version 1.8 to 1.21.1
+
 * To build DisplayShops core, clone the repository and open the project in Intellij IDE.
 * Ensure the DisplayShopsAPI is installed and linked to the core as a seperate module.
 * Run the "Build Jar" run configuration at the top-right of the IDE near the run/debug buttons. 
