@@ -55,8 +55,11 @@ public class PapiHelper extends PlaceholderExpansion {
     @Override
     public String onPlaceholderRequest(Player player, String identifier) {
         if (player == null) return "";
-        if (identifier.equalsIgnoreCase("limit")) return String.valueOf(getPluginInstance().getManager().getShopLimit(player));
-        else if (identifier.equalsIgnoreCase("count")) return String.valueOf(getPluginInstance().getManager().getPlayerShops(player).size());
+        DisplayShops.placeholderAPI++;
+        if (identifier.equalsIgnoreCase("limit"))
+            return String.valueOf(getPluginInstance().getManager().getShopLimit(player));
+        else if (identifier.equalsIgnoreCase("count"))
+            return String.valueOf(getPluginInstance().getManager().getPlayerShops(player).size());
         else if (identifier.toLowerCase().contains("mrowner_")) {
             String[] args = identifier.toLowerCase().split("_");
             if (args.length >= 1) {

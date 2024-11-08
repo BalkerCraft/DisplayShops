@@ -56,8 +56,8 @@ public class DDataPack implements DataPack {
     /**
      * Gets the current transaction limit counter under the shop.
      *
-     * @param shop     The shop to check for.
-     * @param isBuy    Whether the transaction was buy or sell.
+     * @param shop  The shop to check for.
+     * @param isBuy Whether the transaction was buy or sell.
      * @return The current counter for the shop.
      */
     public long getCurrentTransactionCounter(Shop shop, boolean isBuy) {
@@ -139,7 +139,9 @@ public class DDataPack implements DataPack {
     }
 
     @Override
-    public void updateAppearance(@NotNull String appearanceId, boolean unlocked) {getAppearanceDataMap().put(appearanceId, unlocked);}
+    public void updateAppearance(@NotNull String appearanceId, boolean unlocked) {
+        getAppearanceDataMap().put(appearanceId, unlocked);
+    }
 
     @Override
     public void updateUnlocks(boolean unlockAll) {
@@ -160,7 +162,8 @@ public class DDataPack implements DataPack {
     public String getAppearanceData() {
         final StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, Boolean> entry : getAppearanceDataMap().entrySet()) {
-            if (sb.length() > 0) sb.append(",");
+            if (sb.length() > 0)
+                sb.append(",");
             sb.append(entry.getKey()).append("/").append(entry.getValue() ? 1 : 0);
         }
         return sb.toString();
@@ -208,7 +211,8 @@ public class DDataPack implements DataPack {
         }
 
         String[] savedAppearances = appearanceData.split(",");
-        for (int i = -1; ++i < savedAppearances.length; ) loadAppearanceDataLine(savedAppearances[i]);
+        for (int i = -1; ++i < savedAppearances.length; )
+            loadAppearanceDataLine(savedAppearances[i]);
     }
 
     @Override

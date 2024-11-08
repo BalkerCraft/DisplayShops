@@ -59,7 +59,7 @@ public class VisualTask extends BukkitRunnable {
                 Display display = getPluginInstance().getDisplayManager().getDisplay(shop.getShopId());
                 if (display == null || shop.getBaseLocation() == null) {continue;}
 
-                final String generateText = display.generateText();
+                final String generateText = shop.isClaimable() ? display.generateTextClaimable() : display.generateText();
                 final ItemStack item = (shop.getShopItem() != null ? shop.getShopItem() : Display.barrier);
                 float currentScale = 0.5f;
                 double x = 0, y = 0, z = 0;
@@ -112,7 +112,7 @@ public class VisualTask extends BukkitRunnable {
                 DisplayShops.getPluginInstance().getServer().getScheduler().runTask(DisplayShops.getPluginInstance(), () -> {
                     display.update(world, generateText, finalCurrentScale, finalX, finalY, finalZ, offsets);
                 });
-                if (isItemSpinning) {
+                if (isItemSpinning && !shop.isClaimable()) {
                     Matrix4f mat = new Matrix4f().scale(finalCurrentScale);
                     rotateDisplay(display, mat, finalCurrentScale, 5);
                 }
@@ -153,6 +153,9 @@ public class VisualTask extends BukkitRunnable {
 
                 continue;
             }
+
+            if (shop.isClaimable())
+                continue;
 
             for (Player player : getPluginInstance().getServer().getOnlinePlayers()) {
                 if (getPlayersToRefresh().contains(player.getUniqueId()) || getShopsToRefresh().contains(shop.getShopId())) {
@@ -210,7 +213,7 @@ public class VisualTask extends BukkitRunnable {
         }
     }
 
-    private final HashMap<UUID,Float> map = new HashMap<>();
+    private final HashMap<UUID, Float> map = new HashMap<>();
 
     private void rotateDisplay(Display ddisplay, Matrix4f mat, float scale, int duration) {
         ItemDisplay display = (ItemDisplay) Ref.get(ddisplay, "itemDisplay");

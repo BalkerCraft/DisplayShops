@@ -92,21 +92,27 @@ public class HttpRequest {
     }
 
     // getters & setters
-    public String getBaseURL() {return baseURL;}
+    public String getBaseURL() {
+        return baseURL;
+    }
 
     public HttpRequest setBaseURL(String baseURL) {
         this.baseURL = baseURL;
         return this;
     }
 
-    public Method getMethod() {return method;}
+    public Method getMethod() {
+        return method;
+    }
 
     public HttpRequest setMethod(@NotNull Method method) {
         this.method = method;
         return this;
     }
 
-    public Map<String, String> getParameters() {return parameters;}
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
 
     public HttpRequest setParameters(@NotNull Map<String, String> parameters) {
         this.parameters = parameters;
@@ -122,21 +128,27 @@ public class HttpRequest {
         return this;
     }
 
-    public int getConnectTimeOut() {return connectTimeOut;}
+    public int getConnectTimeOut() {
+        return connectTimeOut;
+    }
 
     public HttpRequest setConnectTimeOut(int connectTimeOut) {
         this.connectTimeOut = connectTimeOut;
         return this;
     }
 
-    public int getReadTimeOut() {return readTimeOut;}
+    public int getReadTimeOut() {
+        return readTimeOut;
+    }
 
     public HttpRequest setReadTimeOut(int readTimeOut) {
         this.readTimeOut = readTimeOut;
         return this;
     }
 
-    public boolean followRedirects() {return followRedirects;}
+    public boolean followRedirects() {
+        return followRedirects;
+    }
 
     public HttpRequest setFollowRedirects(boolean followRedirects) {
         this.followRedirects = followRedirects;
@@ -161,7 +173,9 @@ public class HttpRequest {
             this.header = header;
         }
 
-        public String getHeader() {return header;}
+        public String getHeader() {
+            return header;
+        }
     }
 
 }

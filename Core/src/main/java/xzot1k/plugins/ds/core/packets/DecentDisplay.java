@@ -49,7 +49,9 @@ public class DecentDisplay {
 
         if (getHologram() == null) {
             Hologram foundHologram = DHAPI.getHologram("ds-" + getShop().getShopId());
-            if (foundHologram != null) {setHologram(foundHologram);} else {setHologram(DHAPI.createHologram("ds-" + getShop().getShopId(), baseLocation));}
+            if (foundHologram != null) {setHologram(foundHologram);} else {
+                setHologram(DHAPI.createHologram("ds-" + getShop().getShopId(), baseLocation));
+            }
         }
 
         updateItem(world, baseLocation, itemScale, itemOffsetX, itemOffsetY, itemOffsetZ, offsets);
@@ -218,10 +220,12 @@ public class DecentDisplay {
     public List<String> generateText() {
         List<String> hologramFormat;
         if (shop.getShopItem() != null) {
-            if (shop.getOwnerUniqueId() == null) hologramFormat = DisplayShops.getPluginInstance().getConfig().getStringList("admin-shop-format");
+            if (shop.getOwnerUniqueId() == null)
+                hologramFormat = DisplayShops.getPluginInstance().getConfig().getStringList("admin-shop-format");
             else hologramFormat = DisplayShops.getPluginInstance().getConfig().getStringList("valid-item-format");
         } else {
-            if (shop.getOwnerUniqueId() == null) hologramFormat = DisplayShops.getPluginInstance().getConfig().getStringList("admin-invalid-item-format");
+            if (shop.getOwnerUniqueId() == null)
+                hologramFormat = DisplayShops.getPluginInstance().getConfig().getStringList("admin-invalid-item-format");
             else hologramFormat = DisplayShops.getPluginInstance().getConfig().getStringList("invalid-item-format");
         }
 
@@ -395,9 +399,15 @@ public class DecentDisplay {
     }
 
     // getters & setters
-    public Shop getShop() {return shop;}
+    public Shop getShop() {
+        return shop;
+    }
 
-    public Hologram getHologram() {return hologram;}
+    public Hologram getHologram() {
+        return hologram;
+    }
 
-    public void setHologram(Hologram hologram) {this.hologram = hologram;}
+    public void setHologram(Hologram hologram) {
+        this.hologram = hologram;
+    }
 }

@@ -215,7 +215,7 @@ public class DManager implements Manager {
                         + playerUniqueId + "', '" + dataPack.getAppearanceData() + "', '" + dataPack.cooldownsToString() + "', '"
                         + dataPack.transactionLimitsToString() + "', '" + (dataPack.isTransactionNotify() ? 1 : 0)
                         + "') ON DUPLICATE KEY UPDATE uuid = '" + playerUniqueId + "', appearance_data = '"
-                        + dataPack.getAppearanceDataMap() + "', cooldowns = '" + dataPack.cooldownsToString()
+                        + dataPack.getAppearanceData() + "', cooldowns = '" + dataPack.cooldownsToString()
                         + "', transaction_limits = '" + dataPack.transactionLimitsToString() + "', notify = '"
                         + (dataPack.isTransactionNotify() ? 1 : 0) + "';";
 
@@ -487,8 +487,9 @@ public class DManager implements Manager {
     public String getItemName(@NotNull ItemStack itemStack) {
         if (itemStack.hasItemMeta() && itemStack.getItemMeta() != null && itemStack.getItemMeta().hasDisplayName())
             return itemStack.getItemMeta().getDisplayName();//.replace("\"", "\\\"").replace("'", "\\'");
-        else return Ref.isNewerThan(12) ? getPluginInstance().getManager().getTranslatedName(itemStack.getType(), itemStack.getDurability())
-                : getPluginInstance().getManager().getTranslatedName(itemStack.getType());
+        else
+            return Ref.isNewerThan(12) ? getPluginInstance().getManager().getTranslatedName(itemStack.getType(), itemStack.getDurability())
+                    : getPluginInstance().getManager().getTranslatedName(itemStack.getType());
         //.replace("\"", "\\\"").replace("'", "\\'");
     }
 
@@ -868,7 +869,9 @@ public class DManager implements Manager {
             try (ResultSet resultSet = statement.executeQuery()) {
                 shopCount = (resultSet.next() ? resultSet.getInt(1) : 0);
                 shopCountPercentage = ((long) (shopCount * 0.15));
-            } catch (SQLException ex) {getPluginInstance().log(Level.WARNING, "Error counting shops from database (" + ex.getMessage() + ").");}
+            } catch (SQLException ex) {
+                getPluginInstance().log(Level.WARNING, "Error counting shops from database (" + ex.getMessage() + ").");
+            }
         } catch (SQLException e) {
             getPluginInstance().log(Level.WARNING, "An error occurred during shop load time (" + e.getMessage() + ").");
         }
@@ -901,12 +904,17 @@ public class DManager implements Manager {
                     if (ownerIdString != null && !ownerIdString.isEmpty()) ownerId = UUID.fromString(ownerIdString);
 
                     final int cleanInactiveTime = getPluginInstance().getConfig().getInt("clean-inactive-duration");
+                    boolean claimable = false;
                     if (cleanInactiveTime >= 0 && ownerId != null) {
                         OfflinePlayer offlinePlayer = getPluginInstance().getServer().getOfflinePlayer(ownerId);
-                        final long lastOnline = (((System.currentTimeMillis() - offlinePlayer.getLastPlayed()) / 1000) % 60);
+                        final long lastOnline = (((System.currentTimeMillis() - offlinePlayer.getLastSeen()) / 1000));
                         if (lastOnline >= cleanInactiveTime) {
-                            shopsToDelete.add(shopIdString);
-                            continue;
+                            if (getPluginInstance().getConfig().getBoolean("claimable-system", false)) {
+                                claimable = true;
+                            } else {
+                                shopsToDelete.add(shopIdString);
+                                continue;
+                            }
                         }
                     }
 
@@ -981,16 +989,27 @@ public class DManager implements Manager {
                     shop.setPlayerSellLimit(Integer.parseInt(limitArgs[5]));
 
                     String changeStamp = resultSet.getString("change_time_stamp");
-                    if (changeStamp != null && !changeStamp.contains(".")) shop.setChangeTimeStamp(Long.parseLong(changeStamp));
+                    if (changeStamp != null && !changeStamp.contains("."))
+                        shop.setChangeTimeStamp(Long.parseLong(changeStamp));
 
                     shop.setCommandOnlyMode(resultSet.getBoolean("command_only_mode"));
                     shop.setStock(resultSet.getInt("stock"));
+
+
+                    shop.setClaimable(claimable);
+                    if (shop.isClaimable()) {
+                        if ((shop.getStock() == 0 && shop.getStoredBalance() == 0) || shop.getShopItem() == null) {
+                            shopsToDelete.add(shopIdString);
+                            continue;
+                        }
+                    }
 
                     final String assistantsLine = resultSet.getString("assistants");
                     if (assistantsLine != null && !assistantsLine.isEmpty())
                         if (assistantsLine.contains(";")) {
                             String[] assistantArgs = assistantsLine.split(";");
-                            for (String playerUniqueId : assistantArgs) shop.getAssistants().add(UUID.fromString(playerUniqueId));
+                            for (String playerUniqueId : assistantArgs)
+                                shop.getAssistants().add(UUID.fromString(playerUniqueId));
                         } else shop.getAssistants().add(UUID.fromString(assistantsLine));
 
                     final String commandsLine = resultSet.getString("commands");
@@ -1048,7 +1067,9 @@ public class DManager implements Manager {
                     getPluginInstance().log(Level.WARNING, "The shop '" + resultSet.getString("id") + "' failed to load(" + e.getMessage() + ").");
                 }
             }
-        } catch (SQLException ex) {getPluginInstance().log(Level.WARNING, "Error retrieving shops from database (" + ex.getMessage() + ").");}
+        } catch (SQLException ex) {
+            getPluginInstance().log(Level.WARNING, "Error retrieving shops from database (" + ex.getMessage() + ").");
+        }
 
         if (!shopsToDelete.isEmpty()) {
             for (String id : shopsToDelete) {
@@ -1375,7 +1396,8 @@ public class DManager implements Manager {
                     continue;
                 }
 
-                if (itemStack.isSimilar(item)) availableSpace += Math.max(0, (itemStack.getType().getMaxStackSize() - item.getAmount()));
+                if (itemStack.isSimilar(item))
+                    availableSpace += Math.max(0, (itemStack.getType().getMaxStackSize() - item.getAmount()));
             }
             return availableSpace;
         }

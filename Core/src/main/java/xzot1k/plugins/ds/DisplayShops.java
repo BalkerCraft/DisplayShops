@@ -8,6 +8,8 @@ import me.arcaniax.hdb.api.HeadDatabaseAPI;
 import me.devtec.shared.Ref;
 import me.devtec.shared.versioning.VersionUtils;
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
+import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -130,12 +132,11 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                         version);
         }
 
-        if(getConfig().getBoolean("use-item-displays-if-available")){
-            if((Ref.serverVersionInt()==19&&Ref.serverVersionRelease()==4) || Ref.isNewerThan(19) &&Ref.serverType()==Ref.ServerType.PAPER) {
+        if (getConfig().getBoolean("use-item-displays-if-available")) {
+            if ((Ref.serverVersionInt() == 19 && Ref.serverVersionRelease() == 4) || (Ref.isNewerThan(19) && Ref.serverType() == Ref.ServerType.PAPER)) {
                 displayManager = new DisplayManager();
-                log(Level.INFO,"Using ItemDisplays! Beware of possible higher server usage!");
-            }else
-                log(Level.WARNING,"Server is not compatible with ItemDisplays! Only 1.19.4+ and Paper");
+            } else
+                log(Level.WARNING, "Server is not compatible with ItemDisplays! Only 1.19.4+ and Paper");
         }
 
         fixConfig();
@@ -157,9 +158,8 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
             setup();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            throw new RuntimeException("Plugin is not compatible with this server version! Your server version: "+Ref.serverVersion());
+            throw new RuntimeException("Plugin is not compatible with this server version! Your server version: " + Ref.serverVersion());
         }
-
 
 
         setPaperSpigot(false);
@@ -246,7 +246,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         });
 
         setupTasks();
-        log(Level.INFO, "Fully loaded and enabled with " +Ref.serverVersion() +" packets (Took " + (System.currentTimeMillis() - startTime) + "ms).");
+        log(Level.INFO, "Fully loaded and enabled with " + Ref.serverVersion() + " packets (Took " + (System.currentTimeMillis() - startTime) + "ms).");
 
         if (getDescription().getVersion().toLowerCase().contains("build") || getDescription().getVersion().toLowerCase().contains("snapshot"))
             log(Level.WARNING, "You are currently running an 'EXPERIMENTAL' build. Please ensure to watch your "
@@ -255,8 +255,23 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
             log(Level.INFO, "There seems to be a different version on the Spigot resource page '"
                     + getLatestVersion() + "'. You are currently running '" + getDescription().getVersion() + "'.");
 
-        metrics = new Metrics(getPluginInstance(), 23070);
+        Metrics m = new Metrics(getPluginInstance(), 23070);
+        m.addCustomChart(new SingleLineChart("shop_amount",()->getManager().getShopMap().size()));
+        m.addCustomChart(new SimplePie("modern_displays",()->displayManager!=null?"true":"false"));
+        m.addCustomChart(new SimplePie("claimable_system",()->getConfig().getBoolean("claimable-system",false)?"true":"false"));
+        if(papi!=null)
+            m.addCustomChart(new SingleLineChart("placeholderapi_requests",()->placeholderAPI));
+        m.addCustomChart(new SingleLineChart("item_sells",()->itemSells));
+        m.addCustomChart(new SingleLineChart("item_buys",()->itemBuys));
+        m.addCustomChart(new SingleLineChart("menu_opens",()-> menuOpens));
+        m.addCustomChart(new SimplePie("sql_saving_system",()->isSQL?"true":"false"));
     }
+
+    public static int menuOpens = 0;
+    public static int itemSells = 0;
+    public static int itemBuys = 0;
+    public static int placeholderAPI;
+    public static boolean isSQL=false;
 
     public static void ClearAllEntities() {
         for (World world : DisplayShops.getPluginInstance().getServer().getWorlds()) {
@@ -267,7 +282,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                 }
             }
         }
-        if(getPluginInstance().getDisplayManager()==null)
+        if (getPluginInstance().getDisplayManager() == null)
             return;
 
         for (Map.Entry<UUID, Display> entry : DisplayShops.getPluginInstance().getDisplayManager().getShopDisplays().entrySet()) {
@@ -283,13 +298,16 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         }
     }
 
-    private Metrics metrics;
-
     @Override
     public void onDisable() {
-        if(metrics!=null)
-            metrics.shutdown();
         getServer().getScheduler().cancelTasks(this);
+
+        for (UUID uuid : Listeners.openClaimMenu.keySet()) {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null)
+                p.closeInventory();
+        }
+        Listeners.openClaimMenu.clear();
 
         ClearAllEntities();
 
@@ -370,6 +388,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                         recoveryParameters = "(uuid VARCHAR(100) PRIMARY KEY NOT NULL, currency REAL, item_amount INTEGER, item TEXT)",
                         logParameters = "(timestamp TEXT, shop_id VARCHAR(100), player_id VARCHAR(100), action TEXT, location TEXT, value TEXT)";
                 fixedTables = handleDatabaseFixing(statement, shopParameters, markRegionParameters, playerDataParameters, recoveryParameters, logParameters, host);
+                isSQL=false;
             } else {
                 try {
                     Class.forName("com.mysql.cj.jdbc.Driver");
@@ -398,6 +417,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
 
                 fixedTables = handleDatabaseFixing(statement, shopParameters, markRegionParameters, playerDataParameters, recoveryParameters, logParameters, host);
                 exportMySQLDatabase();
+                isSQL=true;
             }
         } catch (ClassNotFoundException | SQLException | IOException e) {
             e.printStackTrace();
@@ -648,10 +668,12 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                             String[] materialSplit = materialLine.split(":");
                             Material material = Material.getMaterial(materialSplit[0].toUpperCase().replace(" ", "_").replace("-", "_"));
                             int durability = Integer.parseInt(materialSplit[1]);
-                            if (material != null && !material.name().contains("AIR")) shapedRecipe.setIngredient(recipeChar, material, durability);
+                            if (material != null && !material.name().contains("AIR"))
+                                shapedRecipe.setIngredient(recipeChar, material, durability);
                         } else {
                             Material material = Material.getMaterial(materialLine.toUpperCase().replace(" ", "_").replace("-", "_"));
-                            if (material != null && !material.name().contains("AIR")) shapedRecipe.setIngredient(recipeChar, material);
+                            if (material != null && !material.name().contains("AIR"))
+                                shapedRecipe.setIngredient(recipeChar, material);
                         }
                     }
                 }
@@ -666,10 +688,12 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                             String[] materialSplit = materialLine.split(":");
                             Material material = Material.getMaterial(materialSplit[0].toUpperCase().replace(" ", "_").replace("-", "_"));
                             int durability = Integer.parseInt(materialSplit[1]);
-                            if (material != null && !material.name().contains("AIR")) shapedRecipe.setIngredient(recipeChar, material, durability);
+                            if (material != null && !material.name().contains("AIR"))
+                                shapedRecipe.setIngredient(recipeChar, material, durability);
                         } else {
                             Material material = Material.getMaterial(materialLine.toUpperCase().replace(" ", "_").replace("-", "_"));
-                            if (material != null && !material.name().contains("AIR")) shapedRecipe.setIngredient(recipeChar, material);
+                            if (material != null && !material.name().contains("AIR"))
+                                shapedRecipe.setIngredient(recipeChar, material);
                         }
                     }
                 }
@@ -689,7 +713,8 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                             }
                         } else {
                             Material material = Material.getMaterial(materialLine.toUpperCase().replace(" ", "_").replace("-", "_"));
-                            if (material != null && !material.name().contains("AIR")) shapedRecipe.setIngredient(recipeChar, material);
+                            if (material != null && !material.name().contains("AIR"))
+                                shapedRecipe.setIngredient(recipeChar, material);
                         }
                     }
                 }
@@ -848,7 +873,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
     }
 
     private boolean isOutdated() {
-        try {
+        /*try {
             HttpURLConnection c = (HttpURLConnection) new URL("https://api.spigotmc.org/legacy/update.php?resource=69766").openConnection();
             c.setRequestMethod("GET");
             String oldVersion = getDescription().getVersion(),
@@ -857,7 +882,7 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                 return true;
         } catch (IOException e) {
             log(Level.WARNING, e.getMessage());
-        }
+        }*/
         return false;
     }
 
@@ -884,31 +909,32 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         }
 
         try {
-            String version = Ref.serverVersion().replace(".","_");
-            if(!version.startsWith("v"))
-                version="v"+version;
+            String version = Ref.serverVersion().replace(".", "_");
+            if (!version.startsWith("v"))
+                version = "v" + version;
 
             Class<?> vUtilClass = Class.forName("xzot1k.plugins.ds.nms." + version + ".VUtil");
             versionUtil = (VersionUtil) vUtilClass.getDeclaredConstructor().newInstance();
             displayPacketClass = Class.forName("xzot1k.plugins.ds.nms." + version + ".DPacket");
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException | ClassNotFoundException e) {
-            String version = Ref.serverVersion().replace(".","_");
-            if(!version.startsWith("v"))
-                version="v"+version;
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException |
+                 ClassNotFoundException e) {
+            String version = Ref.serverVersion().replace(".", "_");
+            if (!version.startsWith("v"))
+                version = "v" + version;
             String[] split = version.split("_");
 
-            version=split[0]+"_"+split[1]+"_R"+split[2];
+            version = split[0] + "_" + split[1] + "_R" + split[2];
             try {
                 Class<?> vUtilClass = Class.forName("xzot1k.plugins.ds.nms." + version + ".VUtil");
                 versionUtil = (VersionUtil) vUtilClass.getDeclaredConstructor().newInstance();
                 displayPacketClass = Class.forName("xzot1k.plugins.ds.nms." + version + ".DPacket");
-            } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e2) {
+            } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
+                     NoSuchMethodException e2) {
                 e2.printStackTrace();
             }
         }
 
     }
-
 
 
     public String toString(@NotNull ItemStack itemStack) {
@@ -952,7 +978,8 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
             final File[] files = dir.listFiles();
             if (files != null && files.length > 0) for (int i = -1; ++i < files.length; ) {
                 final File file = files[i];
-                if (file.getName().contains("deposit-balance") || file.getName().contains("deposit-stock")) continue; // TODO REMOVE LATER
+                if (file.getName().contains("deposit-balance") || file.getName().contains("deposit-stock") || file.getName().contains("claim-items"))
+                    continue; // TODO REMOVE LATER
                 getMenuMap().put(file.getName().toLowerCase().replace(".yml", ""), new BackendMenu(file));
             }
         }
@@ -1041,26 +1068,35 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
                 getConfig().set("shop-block-material", "ENDER_PORTAL_FRAME:0");*/
 
             ConfigurationSection recipeSection = getConfig().getConfigurationSection("recipe");
-            if (recipeSection != null) for (Map.Entry<String, Object> entry : recipeSection.getValues(true).entrySet()) {
-                final String value = String.valueOf(entry.getValue());
-                if (value.toUpperCase().contains("END_STONE")) recipeSection.set(entry.getKey(), value.replace("END_STONE", "ENDER_STONE"));
-            }
+            if (recipeSection != null)
+                for (Map.Entry<String, Object> entry : recipeSection.getValues(true).entrySet()) {
+                    final String value = String.valueOf(entry.getValue());
+                    if (value.toUpperCase().contains("END_STONE"))
+                        recipeSection.set(entry.getKey(), value.replace("END_STONE", "ENDER_STONE"));
+                }
 
             if (Ref.isOlderThan(9)) {
                 ConfigurationSection immersionSection = getConfig().getConfigurationSection("immersion-section");
-                if (immersionSection != null) for (Map.Entry<String, Object> entry : immersionSection.getValues(true).entrySet()) {
-                    final String value = String.valueOf(entry.getValue());
-                    if (value.equalsIgnoreCase("ENTITY_ITEM_PICKUP")) immersionSection.set(entry.getKey(), "ITEM_PICKUP");
-                    else if (value.equalsIgnoreCase("BLOCK_WOOD_BREAK")) immersionSection.set(entry.getKey(), "STEP_WOOD");
-                    else if (value.equalsIgnoreCase("ENTITY_ENDERMAN_TELEPORT")) immersionSection.set(entry.getKey(), "ENDERMAN_TELEPORT");
-                    else if (value.equalsIgnoreCase("ENTITY_SNOWBALL_THROW")) immersionSection.set(entry.getKey(), "SHOOT_ARROW");
-                }
+                if (immersionSection != null)
+                    for (Map.Entry<String, Object> entry : immersionSection.getValues(true).entrySet()) {
+                        final String value = String.valueOf(entry.getValue());
+                        if (value.equalsIgnoreCase("ENTITY_ITEM_PICKUP"))
+                            immersionSection.set(entry.getKey(), "ITEM_PICKUP");
+                        else if (value.equalsIgnoreCase("BLOCK_WOOD_BREAK"))
+                            immersionSection.set(entry.getKey(), "STEP_WOOD");
+                        else if (value.equalsIgnoreCase("ENTITY_ENDERMAN_TELEPORT"))
+                            immersionSection.set(entry.getKey(), "ENDERMAN_TELEPORT");
+                        else if (value.equalsIgnoreCase("ENTITY_SNOWBALL_THROW"))
+                            immersionSection.set(entry.getKey(), "SHOOT_ARROW");
+                    }
             } else if (Ref.isNewerThan(8)) {
                 ConfigurationSection immersionSection = getConfig().getConfigurationSection("immersion-section");
-                if (immersionSection != null) for (Map.Entry<String, Object> entry : immersionSection.getValues(true).entrySet()) {
-                    final String value = String.valueOf(entry.getValue());
-                    if (value.equalsIgnoreCase("ENTITY_ENDERMAN_TELEPORT")) immersionSection.set(entry.getKey(), "ENDERMEN_TELEPORT");
-                }
+                if (immersionSection != null)
+                    for (Map.Entry<String, Object> entry : immersionSection.getValues(true).entrySet()) {
+                        final String value = String.valueOf(entry.getValue());
+                        if (value.equalsIgnoreCase("ENTITY_ENDERMAN_TELEPORT"))
+                            immersionSection.set(entry.getKey(), "ENDERMEN_TELEPORT");
+                    }
             }
 
             saveConfig();
@@ -1075,18 +1111,22 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         ConfigurationSection recipeSection = getConfig().getConfigurationSection("recipe");
         if (recipeSection != null) for (Map.Entry<String, Object> entry : recipeSection.getValues(true).entrySet()) {
             final String value = String.valueOf(entry.getValue());
-            if (value.toUpperCase().contains("ENDER_STONE")) recipeSection.set(entry.getKey(), value.replace("ENDER_STONE", "END_STONE"));
+            if (value.toUpperCase().contains("ENDER_STONE"))
+                recipeSection.set(entry.getKey(), value.replace("ENDER_STONE", "END_STONE"));
         }
 
         ConfigurationSection immersionSection = getConfig().getConfigurationSection("immersion-section");
-        if (immersionSection != null) for (Map.Entry<String, Object> entry : immersionSection.getValues(true).entrySet()) {
-            final String value = String.valueOf(entry.getValue());
-            if (value.equalsIgnoreCase("ITEM_PICKUP")) immersionSection.set(entry.getKey(), "ENTITY_ITEM_PICKUP");
-            else if (value.equalsIgnoreCase("STEP_WOOD")) immersionSection.set(entry.getKey(), "BLOCK_WOOD_BREAK");
-            else if (value.equalsIgnoreCase("ENDERMAN_TELEPORT")
-                    || value.toUpperCase().contains("ENDERMEN_TELEPORT")) immersionSection.set(entry.getKey(), "ENTITY_ENDERMAN_TELEPORT");
-            else if (value.equalsIgnoreCase("SHOOT_ARROW")) immersionSection.set(entry.getKey(), "ENTITY_SNOWBALL_THROW");
-        }
+        if (immersionSection != null)
+            for (Map.Entry<String, Object> entry : immersionSection.getValues(true).entrySet()) {
+                final String value = String.valueOf(entry.getValue());
+                if (value.equalsIgnoreCase("ITEM_PICKUP")) immersionSection.set(entry.getKey(), "ENTITY_ITEM_PICKUP");
+                else if (value.equalsIgnoreCase("STEP_WOOD")) immersionSection.set(entry.getKey(), "BLOCK_WOOD_BREAK");
+                else if (value.equalsIgnoreCase("ENDERMAN_TELEPORT")
+                        || value.toUpperCase().contains("ENDERMEN_TELEPORT"))
+                    immersionSection.set(entry.getKey(), "ENTITY_ENDERMAN_TELEPORT");
+                else if (value.equalsIgnoreCase("SHOOT_ARROW"))
+                    immersionSection.set(entry.getKey(), "ENTITY_SNOWBALL_THROW");
+            }
 
         saveConfig();
         reloadConfig();
@@ -1324,14 +1364,20 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
     }
 
     // folia stuff
-    public void OperateFolia(FoliaScheduler foliaScheduler, Delegate delegate) {OperateFolia(foliaScheduler, delegate, -1, -1);}
+    public void OperateFolia(FoliaScheduler foliaScheduler, Delegate delegate) {
+        OperateFolia(foliaScheduler, delegate, -1, -1);
+    }
 
-    public void OperateFolia(FoliaScheduler foliaScheduler, Delegate delegate, int delay) {OperateFolia(foliaScheduler, delegate, delay, -1);}
+    public void OperateFolia(FoliaScheduler foliaScheduler, Delegate delegate, int delay) {
+        OperateFolia(foliaScheduler, delegate, delay, -1);
+    }
 
     public void OperateFolia(FoliaScheduler foliaScheduler, Delegate delegate, int delay, int interval) {
         switch (foliaScheduler) {
             case GLOBAL: {
-                if (delay > -1 && interval > -1) {getServer().getGlobalRegionScheduler().runAtFixedRate(this, scheduledTask -> delegate.Method(), delay, interval);} else if (delay > -1) {
+                if (delay > -1 && interval > -1) {
+                    getServer().getGlobalRegionScheduler().runAtFixedRate(this, scheduledTask -> delegate.Method(), delay, interval);
+                } else if (delay > -1) {
                     getServer().getGlobalRegionScheduler().runDelayed(this, scheduledTask -> delegate.Method(), delay);
                 } else {getServer().getGlobalRegionScheduler().run(this, scheduledTask -> delegate.Method());}
             }
@@ -1343,17 +1389,18 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
     /**
      * @return Returns the manager where most data and API methods are stored.
      */
-    public DManager getManager() {return manager;}
+    public DManager getManager() {
+        return manager;
+    }
 
     /**
      * @return Server version in the format XXX.X where the decimal digit is the 'R' version.
      */
-/*    public double getServerVersion() {return serverVersion;}*/
+    /*    public double getServerVersion() {return serverVersion;}*/
 
-/*    private void setServerVersion(double serverVersion) {this.serverVersion = serverVersion;}*/
+    /*    private void setServerVersion(double serverVersion) {this.serverVersion = serverVersion;}*/
 
-/*    public String getVersionPackageName() {return versionPackageName;}*/
-
+    /*    public String getVersionPackageName() {return versionPackageName;}*/
     public Connection getDatabaseConnection() {
         return databaseConnection;
     }
@@ -1480,21 +1527,37 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         return versionUtil;
     }
 
-    public boolean isGeyserInstalled() {return geyserInstalled;}
+    public boolean isGeyserInstalled() {
+        return geyserInstalled;
+    }
 
-    public VisitItemTask getVisitItemTask() {return visitItemTask;}
+    public VisitItemTask getVisitItemTask() {
+        return visitItemTask;
+    }
 
-    public void setVisitItemTask(VisitItemTask visitItemTask) {this.visitItemTask = visitItemTask;}
+    public void setVisitItemTask(VisitItemTask visitItemTask) {
+        this.visitItemTask = visitItemTask;
+    }
 
-    public ProfileCache getProfileCache() {return profileCache;}
+    public ProfileCache getProfileCache() {
+        return profileCache;
+    }
 
-    public boolean isOraxenInstalled() {return isOraxenInstalled;}
+    public boolean isOraxenInstalled() {
+        return isOraxenInstalled;
+    }
 
-    public DisplayManager getDisplayManager() {return displayManager;}
+    public DisplayManager getDisplayManager() {
+        return displayManager;
+    }
 
-    public boolean isFolia() {return isFolia;}
+    public boolean isFolia() {
+        return isFolia;
+    }
 
-    public boolean isDecentHologramsInstalled() {return isDecentHologramsInstalled;}
+    public boolean isDecentHologramsInstalled() {
+        return isDecentHologramsInstalled;
+    }
 
     public boolean isNBTAPIInstalled() {
         return isNBTAPIInstalled;

@@ -18,13 +18,21 @@ public class LRecord implements LogRecord {
         setValue(value);
     }
 
-    public long getTimestamp() {return timestamp;}
+    public long getTimestamp() {
+        return timestamp;
+    }
 
-    public void setTimestamp(long timestamp) {this.timestamp = timestamp;}
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
 
-    public UUID getShopId() {return shopId;}
+    public UUID getShopId() {
+        return shopId;
+    }
 
-    public void setShopId(UUID shopId) {this.shopId = shopId;}
+    public void setShopId(UUID shopId) {
+        this.shopId = shopId;
+    }
 
     public UUID getPlayerId() {
         return playerId;

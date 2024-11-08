@@ -84,7 +84,11 @@ public class ProfileCache {
         } catch (IOException e) {e.printStackTrace();}
     }
 
-    public JsonObject getCache() {return cache;}
+    public JsonObject getCache() {
+        return cache;
+    }
 
-    public Gson getGson() {return gson;}
+    public Gson getGson() {
+        return gson;
+    }
 }

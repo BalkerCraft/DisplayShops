@@ -70,6 +70,8 @@ public class Display {
     }
 
     private void updateItem(World world, Location baseLocation, float scale, double x, double y, double z, double[] appearanceOffsets) {
+        if (shop.isClaimable())
+            return;
         final float yaw = baseLocation.getYaw();
         final ItemStack item = (shop.getShopItem() != null ? shop.getShopItem() : barrier);
         final boolean isBlock = item.getType().isBlock() && item.getType() != Material.BARRIER,
@@ -216,6 +218,9 @@ public class Display {
         // return if glass is supposed to be hidden
         if (DisplayShops.getPluginInstance().getConfig().getBoolean("hide-glass")) return;
 
+        if (shop.isClaimable())
+            return;
+
         double x = (0.5 + baseLocation.getX() + (appearanceOffsets != null ? appearanceOffsets[0] : 0)),
                 y = (1.4 + baseLocation.getY() + (appearanceOffsets != null ? appearanceOffsets[1] : 0)),
                 z = (0.5 + baseLocation.getZ() + (appearanceOffsets != null ? appearanceOffsets[2] : 0));
@@ -249,6 +254,19 @@ public class Display {
                 if (getEntityIds().contains(entity.getUniqueId())) {getEntityIds().add(entity.getUniqueId());}
             });
         } else {getGlass().teleportAsync(newLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);}
+    }
+
+    public String generateTextClaimable() {
+        List<String> hologramFormat = DisplayShops.getPluginInstance().getConfig().getStringList("claimable-format");
+        StringBuilder sb = new StringBuilder();
+        for (String line : hologramFormat) {
+            if (sb.length() > 0) {
+                sb.append("\n");
+            }
+            sb.append(DisplayShops.getPluginInstance().getManager().color(DisplayShops.getPluginInstance().getManager().applyShopBasedPlaceholders(line, shop)));
+        }
+
+        return DisplayShops.getPluginInstance().getManager().color(sb.toString());
     }
 
     public String generateText() {
@@ -306,7 +324,7 @@ public class Display {
         return DisplayShops.getPluginInstance().getManager().color(text.toString());
     }
 
-    private String prevText="";
+    private String prevText = "";
 
     private void updateLines(World world, Location baseLocation, String text, double[] appearanceOffsets) {
         double x = (0.5 + baseLocation.getX() + (appearanceOffsets != null ? appearanceOffsets[0] : 0)),
@@ -366,9 +384,9 @@ public class Display {
                 if (getEntityIds().contains(entity.getUniqueId())) {getEntityIds().add(entity.getUniqueId());}
             });
         } else {
-            if(!prevText.equals(text)) {
+            if (!prevText.equals(text)) {
                 ((TextDisplay) getTextDisplay()).text(SECTION.deserialize(text));
-                prevText=text;
+                prevText = text;
             }
             getTextDisplay().teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
         }

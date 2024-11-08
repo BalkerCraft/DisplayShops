@@ -292,7 +292,9 @@ public class MRegion implements MarketRegion {
     }
 
     @Override
-    public void setRenter(@Nullable UUID renter) {this.renter = renter;}
+    public void setRenter(@Nullable UUID renter) {
+        this.renter = renter;
+    }
 
     @Override
     public String getRentedTimeStamp() {
@@ -318,12 +320,20 @@ public class MRegion implements MarketRegion {
         return this.pluginInstance;
     }
 
-    public double getCost() {return cost.doubleValue();}
+    public double getCost() {
+        return cost.doubleValue();
+    }
 
-    public void setCost(double cost) {this.cost = new BigDecimal(cost);}
+    public void setCost(double cost) {
+        this.cost = new BigDecimal(cost);
+    }
 
-    public double getRenewCost() {return renewCost.doubleValue();}
+    public double getRenewCost() {
+        return renewCost.doubleValue();
+    }
 
-    public void setRenewCost(double renewCost) {this.renewCost = new BigDecimal(renewCost);}
+    public void setRenewCost(double renewCost) {
+        this.renewCost = new BigDecimal(renewCost);
+    }
 
 }

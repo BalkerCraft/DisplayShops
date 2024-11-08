@@ -55,7 +55,8 @@ public class VisitItemTask extends BukkitRunnable {
         if (runFirstTime) {
             for (Shop shop : INSTANCE.getManager().getShopMap().values()) {
                 if (shop.getBaseLocation() != null && shop.getShopItem() != null) {
-                    if ((showAdminShops && shop.isAdminShop()) || !shop.isAdminShop()) shop.setVisitIcon(buildItem(shop));
+                    if ((showAdminShops && shop.isAdminShop()) || !shop.isAdminShop())
+                        shop.setVisitIcon(buildItem(shop));
                     rebuildQueue.remove(shop.getShopId());
                 }
             }
@@ -69,7 +70,8 @@ public class VisitItemTask extends BukkitRunnable {
             final Shop shop = DisplayShops.getPluginInstance().getManager().getShopById(shopId);
             if (shop == null) continue;
 
-            if (shop.getBaseLocation() == null || (!showAdminShops && shop.isAdminShop()) || shop.getShopItem() == null) continue;
+            if (shop.getBaseLocation() == null || (!showAdminShops && shop.isAdminShop()) || shop.getShopItem() == null)
+                continue;
             shop.setVisitIcon(buildItem(shop));
         }
 
@@ -99,7 +101,8 @@ public class VisitItemTask extends BukkitRunnable {
                     final String line = loreFormat.get(i);
                     if ((line.contains("{owner}") && shop.getOwnerUniqueId() == null)
                             || (line.contains("{buy}") && !line.contains("{sell}") && shop.getBuyPrice(false) <= 0)
-                            || (line.contains("{sell}") && !line.contains("{buy}") && shop.getSellPrice(false) <= 0)) continue;
+                            || (line.contains("{sell}") && !line.contains("{buy}") && shop.getSellPrice(false) <= 0))
+                        continue;
 
                     if (line.equalsIgnoreCase("{description}")) {
                         if ((shop.getDescription() == null || shop.getDescription().isEmpty())) {
@@ -122,9 +125,10 @@ public class VisitItemTask extends BukkitRunnable {
 
                         if (shop.getShopItem().getType() == Material.ENCHANTED_BOOK) {
                             EnchantmentStorageMeta bookMeta = (EnchantmentStorageMeta) shop.getShopItem().getItemMeta();
-                            if (bookMeta != null) for (Map.Entry<Enchantment, Integer> entry : bookMeta.getStoredEnchants().entrySet())
-                                add(INSTANCE.getManager().color(line.replace("{enchants}", (INSTANCE.getManager().getTranslatedName(entry.getKey())
-                                        + " " + INSTANCE.getManager().getRomanNumeral(entry.getValue())))));
+                            if (bookMeta != null)
+                                for (Map.Entry<Enchantment, Integer> entry : bookMeta.getStoredEnchants().entrySet())
+                                    add(INSTANCE.getManager().color(line.replace("{enchants}", (INSTANCE.getManager().getTranslatedName(entry.getKey())
+                                            + " " + INSTANCE.getManager().getRomanNumeral(entry.getValue())))));
                         } else if (!shop.getShopItem().getEnchantments().isEmpty()) {
                             for (Map.Entry<Enchantment, Integer> entry : shop.getShopItem().getEnchantments().entrySet())
                                 add(INSTANCE.getManager().color(line.replace("{enchants}", (INSTANCE.getManager().getTranslatedName(entry.getKey()) + " "

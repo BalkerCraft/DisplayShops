@@ -189,21 +189,28 @@ public class BackendMenu extends YamlConfiguration implements Menu {
                         else if (mat.equalsIgnoreCase("ORANGE_WOOL")) getConfiguration().set(entry.getKey(), "WOOL:1");
                         else if (mat.toUpperCase().contains("_WOOL")) getConfiguration().set(entry.getKey(), "WOOL");
                             // dye
-                        else if (mat.equalsIgnoreCase("LIME_DYE")) getConfiguration().set(entry.getKey(), "INK_SACK:10");
+                        else if (mat.equalsIgnoreCase("LIME_DYE"))
+                            getConfiguration().set(entry.getKey(), "INK_SACK:10");
                         else if (mat.equalsIgnoreCase("RED_DYE")) getConfiguration().set(entry.getKey(), "INK_SACK:1");
-                        else if (mat.equalsIgnoreCase("ORANGE_DYE")) getConfiguration().set(entry.getKey(), "INK_SACK:14");
+                        else if (mat.equalsIgnoreCase("ORANGE_DYE"))
+                            getConfiguration().set(entry.getKey(), "INK_SACK:14");
                         else if (mat.toUpperCase().contains("_DYE")) getConfiguration().set(entry.getKey(), "INK_SACK");
                             // minecart
-                        else if (mat.equalsIgnoreCase("CHEST_MINECART")) getConfiguration().set(entry.getKey(), "STORAGE_MINECART");
+                        else if (mat.equalsIgnoreCase("CHEST_MINECART"))
+                            getConfiguration().set(entry.getKey(), "STORAGE_MINECART");
                             // sign
                         else if (mat.toUpperCase().contains("_SIGN")) getConfiguration().set(entry.getKey(), "SIGN");
                             // end portal frame
-                        else if (mat.equalsIgnoreCase("END_PORTAL_FRAME")) getConfiguration().set(entry.getKey(), "ENDER_PORTAL_FRAME");
+                        else if (mat.equalsIgnoreCase("END_PORTAL_FRAME"))
+                            getConfiguration().set(entry.getKey(), "ENDER_PORTAL_FRAME");
                             // player head
-                        else if (mat.equalsIgnoreCase("PLAYER_HEAD")) getConfiguration().set(entry.getKey(), "SKULL_ITEM");
+                        else if (mat.equalsIgnoreCase("PLAYER_HEAD"))
+                            getConfiguration().set(entry.getKey(), "SKULL_ITEM");
                             // stained-glass
-                        else if (mat.equalsIgnoreCase("BLACK_STAINED_GLASS_PANE")) getConfiguration().set(entry.getKey(), "STAINED_GLASS_PANE:15");
-                        else if (mat.toUpperCase().contains("STAINED_GLASS_PANE")) getConfiguration().set(entry.getKey(), "STAINED_GLASS_PANE:15");
+                        else if (mat.equalsIgnoreCase("BLACK_STAINED_GLASS_PANE"))
+                            getConfiguration().set(entry.getKey(), "STAINED_GLASS_PANE:15");
+                        else if (mat.toUpperCase().contains("STAINED_GLASS_PANE"))
+                            getConfiguration().set(entry.getKey(), "STAINED_GLASS_PANE:15");
 
                     } else if (Ref.isNewerThan(12)) {
 
@@ -211,23 +218,32 @@ public class BackendMenu extends YamlConfiguration implements Menu {
                         if (mat.equalsIgnoreCase("WOOL:5")) getConfiguration().set(entry.getKey(), "LIME_WOOL");
                         else if (mat.equalsIgnoreCase("WOOL:14")) getConfiguration().set(entry.getKey(), "RED_WOOL");
                         else if (mat.equalsIgnoreCase("WOOL:1")) getConfiguration().set(entry.getKey(), "ORANGE_WOOL");
-                        else if (mat.toUpperCase().contains("WOOL")) getConfiguration().set(entry.getKey(), "WHITE_WOOL");
+                        else if (mat.toUpperCase().contains("WOOL"))
+                            getConfiguration().set(entry.getKey(), "WHITE_WOOL");
                             // dye
-                        else if (mat.equalsIgnoreCase("INK_SACK:10")) getConfiguration().set(entry.getKey(), "LIME_DYE");
+                        else if (mat.equalsIgnoreCase("INK_SACK:10"))
+                            getConfiguration().set(entry.getKey(), "LIME_DYE");
                         else if (mat.equalsIgnoreCase("INK_SACK:1")) getConfiguration().set(entry.getKey(), "RED_DYE");
-                        else if (mat.equalsIgnoreCase("INK_SACK:14")) getConfiguration().set(entry.getKey(), "ORANGE_DYE");
+                        else if (mat.equalsIgnoreCase("INK_SACK:14"))
+                            getConfiguration().set(entry.getKey(), "ORANGE_DYE");
                         else if (mat.toUpperCase().contains("INK_SACK")) getConfiguration().set(entry.getKey(), "_DYE");
                             // minecart
-                        else if (mat.equalsIgnoreCase("STORAGE_MINECART")) getConfiguration().set(entry.getKey(), "CHEST_MINECART");
+                        else if (mat.equalsIgnoreCase("STORAGE_MINECART"))
+                            getConfiguration().set(entry.getKey(), "CHEST_MINECART");
                             // sign
-                        else if (Ref.isNewerThan(13) && mat.equalsIgnoreCase("SIGN")) getConfiguration().set(entry.getKey(), "OAK_SIGN");
+                        else if (Ref.isNewerThan(13) && mat.equalsIgnoreCase("SIGN"))
+                            getConfiguration().set(entry.getKey(), "OAK_SIGN");
                             // end portal frame
-                        else if (mat.equalsIgnoreCase("ENDER_PORTAL_FRAME")) getConfiguration().set(entry.getKey(), "END_PORTAL_FRAME");
+                        else if (mat.equalsIgnoreCase("ENDER_PORTAL_FRAME"))
+                            getConfiguration().set(entry.getKey(), "END_PORTAL_FRAME");
                             // player head
-                        else if (mat.equalsIgnoreCase("SKULL_ITEM")) getConfiguration().set(entry.getKey(), "PLAYER_HEAD");
+                        else if (mat.equalsIgnoreCase("SKULL_ITEM"))
+                            getConfiguration().set(entry.getKey(), "PLAYER_HEAD");
                             // stained-glass
-                        else if (mat.equalsIgnoreCase("STAINED_GLASS_PANE:15")) getConfiguration().set(entry.getKey(), "BLACK_STAINED_GLASS_PANE");
-                        else if (mat.toUpperCase().contains("STAINED_GLASS_PANE")) getConfiguration().set(entry.getKey(), "BLACK_STAINED_GLASS_PANE");
+                        else if (mat.equalsIgnoreCase("STAINED_GLASS_PANE:15"))
+                            getConfiguration().set(entry.getKey(), "BLACK_STAINED_GLASS_PANE");
+                        else if (mat.toUpperCase().contains("STAINED_GLASS_PANE"))
+                            getConfiguration().set(entry.getKey(), "BLACK_STAINED_GLASS_PANE");
                     }
                 }
             }
@@ -393,7 +409,8 @@ public class BackendMenu extends YamlConfiguration implements Menu {
 
                         final boolean isDecimal = (dataPack.getInteractionType().name().contains("PRICE") || dataPack.getInteractionType() == InteractionType.AMOUNT_BALANCE),
                                 isLimit = dataPack.getInteractionType().name().contains("LIMIT");
-                        if (!isDecimal) amountItem.setAmount((int) Math.max(1, Math.min(finalAmount, amountItem.getType().getMaxStackSize())));
+                        if (!isDecimal)
+                            amountItem.setAmount((int) Math.max(1, Math.min(finalAmount, amountItem.getType().getMaxStackSize())));
                         itemMeta.setDisplayName(INSTANCE.getManager().color(name
                                 .replace("{amount}", (!isLimit ? (isDecimal ? INSTANCE.getEconomyHandler().format(shop, shop.getCurrencyType(), finalAmount)
                                         : INSTANCE.getManager().formatNumber(finalAmount, false))
@@ -437,7 +454,8 @@ public class BackendMenu extends YamlConfiguration implements Menu {
                         if (itemMeta != null) {
                             List<String> lore = itemMeta.getLore() == null ? new ArrayList<>() : new ArrayList<>(itemMeta.getLore()),
                                     previewLore = getStringList("trade-item-lore");
-                            for (int i = -1; ++i < previewLore.size(); ) lore.add(INSTANCE.getManager().color(previewLore.get(i)));
+                            for (int i = -1; ++i < previewLore.size(); )
+                                lore.add(INSTANCE.getManager().color(previewLore.get(i)));
                             itemMeta.setLore(lore);
                             previewItem.setItemMeta(itemMeta);
                         }
@@ -460,7 +478,8 @@ public class BackendMenu extends YamlConfiguration implements Menu {
                                     final int unitMoreSlot = getInt("buttons.unit-increase-more.slot");
                                     if (unitMoreSlot >= 0 && unitMoreSlot < inventory.getSize()) {
                                         ItemStack itemStack = inventory.getItem(unitMoreSlot);
-                                        if (itemStack != null) itemStack.setAmount((int) (unitItem.getType().getMaxStackSize() * 0.25));
+                                        if (itemStack != null)
+                                            itemStack.setAmount((int) (unitItem.getType().getMaxStackSize() * 0.25));
                                     }
                                 }
 
@@ -468,7 +487,8 @@ public class BackendMenu extends YamlConfiguration implements Menu {
                                     final int unitMoreSlot = getInt("buttons.unit-decrease-more.slot");
                                     if (unitMoreSlot >= 0 && unitMoreSlot < inventory.getSize()) {
                                         ItemStack itemStack = inventory.getItem(unitMoreSlot);
-                                        if (itemStack != null) itemStack.setAmount((int) (unitItem.getType().getMaxStackSize() * 0.25));
+                                        if (itemStack != null)
+                                            itemStack.setAmount((int) (unitItem.getType().getMaxStackSize() * 0.25));
                                     }
                                 }
                             }
@@ -649,7 +669,8 @@ public class BackendMenu extends YamlConfiguration implements Menu {
                                     continue;
 
                                 OfflinePlayer op = INSTANCE.getServer().getOfflinePlayer(currentShop.getOwnerUniqueId());
-                                if (op.hasPlayedBefore() && op.getName() != null && !op.getName().equalsIgnoreCase(offlinePlayer.getName())) continue;
+                                if (op.hasPlayedBefore() && op.getName() != null && !op.getName().equalsIgnoreCase(offlinePlayer.getName()))
+                                    continue;
                             } else if (currentShop.getShopItem().getItemMeta() != null
                                     && !ChatColor.stripColor(currentShop.getShopItem().getItemMeta().getDisplayName().toLowerCase()).contains(searchText.toLowerCase())
                                     && !currentShop.getShopItem().getType().name().toLowerCase().replace("_", " ").contains(searchText.toLowerCase())
@@ -681,7 +702,8 @@ public class BackendMenu extends YamlConfiguration implements Menu {
                                 updateButton(player, inventory, searchSlot, null, null, ("{search-text}:" + searchText));
 
                                 ItemStack searchItem = inventory.getItem(searchSlot);
-                                if (searchItem != null) inventory.setItem(searchSlot, INSTANCE.updateNBT(searchItem, "ds-search", searchText));
+                                if (searchItem != null)
+                                    inventory.setItem(searchSlot, INSTANCE.updateNBT(searchItem, "ds-search", searchText));
 
                                 final String message = INSTANCE.getLangConfig().getString((counter.get() > 0) ? "visit-filter-count" : "visit-filter-none");
                                 if (message != null && !message.equalsIgnoreCase(""))
@@ -740,7 +762,8 @@ public class BackendMenu extends YamlConfiguration implements Menu {
                                     updateButton(player, inventory, searchSlot, null, null, ("{search-text}:" + searchText));
 
                                     ItemStack searchItem = inventory.getItem(searchSlot);
-                                    if (searchItem != null) inventory.setItem(searchSlot, INSTANCE.updateNBT(searchItem, "ds-search", searchText));
+                                    if (searchItem != null)
+                                        inventory.setItem(searchSlot, INSTANCE.updateNBT(searchItem, "ds-search", searchText));
                                 }
                             } else clearEmptySlots(inventory);
                         }
@@ -756,13 +779,15 @@ public class BackendMenu extends YamlConfiguration implements Menu {
                         List<ItemStack> pageContents = new ArrayList<>();
 
                         final List<Appearance> appearances = new ArrayList<>(Appearance.getAppearances());
-                        if (getBoolean("sort-alphabetically")) Collections.sort(appearances); // sort appearances alphabetically
+                        if (getBoolean("sort-alphabetically"))
+                            Collections.sort(appearances); // sort appearances alphabetically
 
                         for (int i = -1; ++i < appearances.size(); ) {
                             Appearance appearance = appearances.get(i);
                             if (appearance == null || (searchText != null && !searchText.isEmpty()
                                     && !appearance.getId().toLowerCase().contains(searchText.toLowerCase()))
-                                    && !appearance.getMaterial().toLowerCase().contains(searchText.toLowerCase())) continue;
+                                    && !appearance.getMaterial().toLowerCase().contains(searchText.toLowerCase()))
+                                continue;
 
                             if (pageContents.size() >= (getSize() - 9)) {
                                 pageMap.put(currentPage, new ArrayList<>(pageContents));
@@ -785,7 +810,8 @@ public class BackendMenu extends YamlConfiguration implements Menu {
                                     updateButton(player, inventory, searchSlot, null, null, ("{search-text}:" + searchText));
 
                                     ItemStack searchItem = inventory.getItem(searchSlot);
-                                    if (searchItem != null) inventory.setItem(searchSlot, INSTANCE.updateNBT(searchItem, "ds-search", searchText));
+                                    if (searchItem != null)
+                                        inventory.setItem(searchSlot, INSTANCE.updateNBT(searchItem, "ds-search", searchText));
                                 }
                             } else clearEmptySlots(inventory);
                         }
@@ -795,13 +821,13 @@ public class BackendMenu extends YamlConfiguration implements Menu {
             }
             case "log": {
                 if (shop != null) {
-                    INSTANCE.getServer().getScheduler().runTaskAsynchronously(INSTANCE, () -> {
+                    /*INSTANCE.getServer().getScheduler().runTaskAsynchronously(INSTANCE, () -> {
                         final HashMap<Integer, List<ItemStack>> pageMap = new HashMap<>();
                         int currentPage = 1;
                         List<ItemStack> pageContents = new ArrayList<>();
 
 
-                    });
+                    });*/
                 }
                 break;
             }

@@ -42,7 +42,9 @@ public class VersionUtil implements xzot1k.plugins.ds.api.VersionUtil {
     public void displayParticle(@NotNull Player player, @NotNull String particleName, @NotNull Location location, double offsetX, double offsetY, double offsetZ, int speed, int amount) {
         if (location.getWorld() != null) {
             Particle particle = Particle.valueOf(particleName);
-            if (particle == (redstoneExists ? Particle.valueOf("REDSTONE") : Particle.valueOf("DUST"))) {player.spawnParticle(particle, location, amount, offsetX, offsetY, offsetZ);} else
+            if (particle == (redstoneExists ? Particle.valueOf("REDSTONE") : Particle.valueOf("DUST"))) {
+                player.spawnParticle(particle, location, amount, offsetX, offsetY, offsetZ);
+            } else
                 player.spawnParticle(particle, location, amount, offsetX, offsetY, offsetZ, 0);
         }
     }

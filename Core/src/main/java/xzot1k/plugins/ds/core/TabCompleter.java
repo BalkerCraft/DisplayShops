@@ -148,7 +148,11 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
     }
 
     // getters & setters
-    private DisplayShops getPluginInstance() {return pluginInstance;}
+    private DisplayShops getPluginInstance() {
+        return pluginInstance;
+    }
 
-    private void setPluginInstance(DisplayShops pluginInstance) {this.pluginInstance = pluginInstance;}
+    private void setPluginInstance(DisplayShops pluginInstance) {
+        this.pluginInstance = pluginInstance;
+    }
 }

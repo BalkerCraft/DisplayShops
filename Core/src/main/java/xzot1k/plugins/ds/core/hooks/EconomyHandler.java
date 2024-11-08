@@ -130,7 +130,8 @@ public class EconomyHandler implements EcoHandler {
     }
 
     public void setupVaultEconomy() {
-        if (INSTANCE.getServer().getPluginManager().getPlugin("Vault") == null || !INSTANCE.getConfig().getBoolean("use-vault")) return;
+        if (INSTANCE.getServer().getPluginManager().getPlugin("Vault") == null || !INSTANCE.getConfig().getBoolean("use-vault"))
+            return;
 
         RegisteredServiceProvider<Economy> rsp = INSTANCE.getServer().getServicesManager().getRegistration(Economy.class);
         if (rsp == null) return;
@@ -316,7 +317,7 @@ public class EconomyHandler implements EcoHandler {
         if (!INSTANCE.getConfig().getBoolean("use-vault")) return;
 
         EdPrison edPrison = (EdPrison) INSTANCE.getServer().getPluginManager().getPlugin("EdPrison");
-        if(edPrison == null) return;
+        if (edPrison == null) return;
 
         //edPrison.getApi().getEconomyApi().
 
@@ -395,7 +396,8 @@ public class EconomyHandler implements EcoHandler {
         }
 
         if (isBlacklisted) return false;
-        else return (player.hasPermission("displayshops.currency.*") || player.hasPermission("displayshops.currency." + currencyName));
+        else
+            return (player.hasPermission("displayshops.currency.*") || player.hasPermission("displayshops.currency." + currencyName));
     }
 
     /**
@@ -448,7 +450,8 @@ public class EconomyHandler implements EcoHandler {
                 if (newName != null) ecoHook.setSymbol(newName);
             }
 
-            if (currencySection.contains("decimal-placement")) ecoHook.setDecimalPlacement(currencySection.getInt("decimal-placement"));
+            if (currencySection.contains("decimal-placement"))
+                ecoHook.setDecimalPlacement(currencySection.getInt("decimal-placement"));
             if (currencySection.contains("raw-placeholder-value"))
                 ecoHook.setRawPlaceholderValue(currencySection.getBoolean("raw-placeholder-value"));
             if (currencySection.contains("use-format")) ecoHook.setUseFormat(currencySection.getBoolean("use-format"));
@@ -528,7 +531,7 @@ public class EconomyHandler implements EcoHandler {
 
             if (shop.getCurrencyType().equals("item-for-item")) {
                 if (player.getPlayer() == null) return false;
-                final ItemStack currencyItem = (economyCallType != null && economyCallType[0] == EconomyCallType.BUY ?
+                final ItemStack currencyItem = (economyCallType != null && economyCallType.length > 0 && economyCallType[0] == EconomyCallType.BUY ?
                         shop.getShopItem() : (INSTANCE.getConfig().getBoolean("shop-currency-item.force-use") ? INSTANCE.getManager().defaultCurrencyItem
                         : (shop.getTradeItem() == null ? INSTANCE.getManager().defaultCurrencyItem : shop.getTradeItem())));
                 INSTANCE.getManager().giveItemStacks(player.getPlayer(), currencyItem, (int) amount);
@@ -562,7 +565,7 @@ public class EconomyHandler implements EcoHandler {
 
             if (shop.getCurrencyType().equals("item-for-item")) {
                 if (player.getPlayer() == null) return false;
-                final ItemStack currencyItem = ((economyCallType != null && economyCallType[0] == EconomyCallType.SELL) ? shop.getShopItem()
+                final ItemStack currencyItem = ((economyCallType != null && economyCallType.length > 0 && economyCallType[0] == EconomyCallType.SELL) ? shop.getShopItem()
                         : INSTANCE.getConfig().getBoolean("shop-currency-item.force-use") ? INSTANCE.getManager().defaultCurrencyItem
                         : shop.getTradeItem() == null ? INSTANCE.getManager().defaultCurrencyItem : shop.getTradeItem());
                 return INSTANCE.getManager().removeItem(player.getPlayer().getInventory(), currencyItem, (int) amount);
@@ -644,9 +647,10 @@ public class EconomyHandler implements EcoHandler {
         if (ecoHook != null) {
             if (ecoHook.useFormat()) {
                 String format = ecoHook.getFormat();
-                if (format != null) return format.replace("{amount}", numericalValue).replace("{symbol}", currencySymbol)
-                        .replace("{item}", (shop != null ? INSTANCE.getManager().getItemName(shop.getCurrencyItem()) : ""))
-                        .replace("{trade-item}", (shop != null ? shop.getTradeItemName() : ""));
+                if (format != null)
+                    return format.replace("{amount}", numericalValue).replace("{symbol}", currencySymbol)
+                            .replace("{item}", (shop != null ? INSTANCE.getManager().getItemName(shop.getCurrencyItem()) : ""))
+                            .replace("{trade-item}", (shop != null ? shop.getTradeItemName() : ""));
             } else if (ecoHook.isRawPlaceholderValue()) return numericalValue;
         }
 

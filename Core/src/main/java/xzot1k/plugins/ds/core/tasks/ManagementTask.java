@@ -103,7 +103,9 @@ public class ManagementTask extends BukkitRunnable {
                 }
 
                 statement.close();
-            } catch (SQLException e) {getPluginInstance().log(Level.WARNING, "There was an issue saving due to an SQL issue.");}
+            } catch (SQLException e) {
+                getPluginInstance().log(Level.WARNING, "There was an issue saving due to an SQL issue.");
+            }
         }
 
         final String host = getPluginInstance().getConfig().getString("mysql.host");
@@ -152,7 +154,8 @@ public class ManagementTask extends BukkitRunnable {
                     } else {
                         getPluginInstance().getServer().getScheduler().runTask(getPluginInstance(), () -> {
                             EcoHook ecoHook = getPluginInstance().getEconomyHandler().getEcoHook(currencyType);
-                            if (ecoHook != null) ecoHook.deposit(player, playerSection.getDouble(shopId + ".currency.amount"));
+                            if (ecoHook != null)
+                                ecoHook.deposit(player, playerSection.getDouble(shopId + ".currency.amount"));
                         });
                     }
                 }

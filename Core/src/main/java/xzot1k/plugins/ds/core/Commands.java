@@ -14,6 +14,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.ItemTag;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Item;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -1568,19 +1569,19 @@ public class Commands implements CommandExecutor {
 
         String pluginVersion = (getPluginInstance().getDescription().getVersion().toLowerCase().contains("build") ? "<red>" : "<green>") + getPluginInstance().getDescription().getVersion();
         String releasedVersion = (getPluginInstance().getDescription().getVersion().toLowerCase().contains("snapshot") ? "<dark_blue>" : "<green>") + getPluginInstance().getLatestVersion();
-        if(Ref.serverType()== Ref.ServerType.PAPER) {
+        if (Ref.serverType() == Ref.ServerType.PAPER) {
             commandSender.sendMessage(mm.deserialize(message
                     , Placeholder.parsed("plversion", pluginVersion)
                     , Placeholder.parsed("plreleasedver", releasedVersion)
                     , Placeholder.component("authors", this::getAuthors)));
-        }else {
+        } else {
             commandSender.sendMessage(getPluginInstance().getManager().color("\n&e<&m------------&r&e[ &bDisplayShops &e]&m------------&r&e>\n" +
-                "&7Current Plugin Version: " + (getPluginInstance().getDescription().getVersion().toLowerCase().contains("build") ? "&c" : "&a")
-                + getPluginInstance().getDescription().getVersion() + "\n" +
-                "&7Latest Release Plugin Version: " + (getPluginInstance().getDescription().getVersion().toLowerCase().contains("snapshot") ? "&1" : "&a")
-                + getPluginInstance().getLatestVersion() + "\n"
-                + "&7Author(s): &b" + StringUtils.join(getPluginInstance().getDescription().getAuthors(), ", ") + "\n" +
-                "&e<&m-------------------------------------&r&e>\n"));
+                    "&7Current Plugin Version: " + (getPluginInstance().getDescription().getVersion().toLowerCase().contains("build") ? "&c" : "&a")
+                    + getPluginInstance().getDescription().getVersion() + "\n" +
+                    "&7Latest Release Plugin Version: " + (getPluginInstance().getDescription().getVersion().toLowerCase().contains("snapshot") ? "&1" : "&a")
+                    + getPluginInstance().getLatestVersion() + "\n"
+                    + "&7Author(s): &b" + StringUtils.join(getPluginInstance().getDescription().getAuthors(), ", ") + "\n" +
+                    "&e<&m-------------------------------------&r&e>\n"));
         }
     }
 
@@ -1836,6 +1837,13 @@ public class Commands implements CommandExecutor {
                 else commandSender.sendMessage(getPluginInstance().getManager().color(message));
             return;
         }
+
+        for (UUID uuid : Listeners.openClaimMenu.keySet()) {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null)
+                p.closeInventory();
+        }
+        Listeners.openClaimMenu.clear();
 
         // cancel tasks and reload configs
         getPluginInstance().cancelTasks();

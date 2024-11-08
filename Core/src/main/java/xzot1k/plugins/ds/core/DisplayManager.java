@@ -44,7 +44,11 @@ public class DisplayManager {
     }
 
     // getters & setters
-    public ConcurrentHashMap<UUID, Display> getShopDisplays() {return shopDisplays;}
+    public ConcurrentHashMap<UUID, Display> getShopDisplays() {
+        return shopDisplays;
+    }
 
-    public ConcurrentHashMap<UUID, DecentDisplay> getDHDisplays() {return dhShopDisplays;}
+    public ConcurrentHashMap<UUID, DecentDisplay> getDHDisplays() {
+        return dhShopDisplays;
+    }
 }

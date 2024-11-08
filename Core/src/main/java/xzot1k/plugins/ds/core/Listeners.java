@@ -6,16 +6,15 @@ package xzot1k.plugins.ds.core;
 
 import me.devtec.shared.Ref;
 import org.apache.commons.lang.WordUtils;
-import org.bukkit.Axis;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.Orientable;
 import org.bukkit.block.data.Rotatable;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -26,27 +25,31 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.metadata.MetadataValue;
 import org.jetbrains.annotations.NotNull;
 import xzot1k.plugins.ds.DisplayShops;
+import xzot1k.plugins.ds.api.eco.EcoHook;
 import xzot1k.plugins.ds.api.enums.Direction;
 import xzot1k.plugins.ds.api.enums.EconomyCallType;
 import xzot1k.plugins.ds.api.enums.EditType;
 import xzot1k.plugins.ds.api.enums.ItemType;
 import xzot1k.plugins.ds.api.events.*;
 import xzot1k.plugins.ds.api.objects.*;
+import xzot1k.plugins.ds.core.utils.ItemUtils;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Listeners implements Listener {
 
@@ -97,18 +100,54 @@ public class Listeners implements Listener {
         }
     }
 
+    public static HashMap<UUID, Pair<YamlConfiguration, Shop>> openClaimMenu = new HashMap<>();
+
+
+    public static void setupItems(Inventory inventory, YamlConfiguration claimMenuConfig, Shop shop) {
+        ConfigurationSection root = claimMenuConfig.getConfigurationSection("ClickableItems");
+
+
+        ItemStack claimButton = ItemUtils.getItemStack(root.getConfigurationSection("ItemClaimButton"));
+        ItemStack claimableItem = ItemUtils.getItemStack(root.getConfigurationSection("ClaimableItem"));
+        claimableItem.setType(shop.getShopItem().getType());
+        claimableItem.setAmount(Math.max(Math.min(shop.getStock(), 64), 1));
+        if (claimableItem.getLore() != null) {
+            claimableItem.setLore(new ArrayList<>(claimableItem.getLore()).stream().map(a -> a.replace("%amount%", shop.getStock() + "")).collect(Collectors.toList()));
+        }
+        ItemStack currencyItem = ItemUtils.getItemStack(root.getConfigurationSection("CurrencyItem"));
+        ItemStack shopCurrencyItem = shop.getTradeItem() == null ? DisplayShops.getPluginInstance().getManager().defaultCurrencyItem : shop.getTradeItem();
+        currencyItem.setType(shopCurrencyItem.getType());
+        currencyItem.setAmount((int) Math.max(Math.min(shop.getStoredBalance(), 64.0), 1.0));
+        if (shop.getCurrencyType() != null) {
+            ItemMeta meta = currencyItem.getItemMeta();
+            EcoHook hook = DisplayShops.getPluginInstance().getEconomyHandler().getEcoHook(shop.getCurrencyType());
+            meta.setDisplayName(meta.getDisplayName().replace("%currency%", hook.getName().replace("{symbol}", hook.getSymbol()) + " | " + DisplayShops.getPluginInstance().getEconomyHandler().format(shop, shop.getCurrencyType(), shop.getStoredBalance())));
+            currencyItem.setItemMeta(meta);
+        }
+        if (shop.getTradeItem() != null) {
+            currencyItem.setType(shop.getTradeItem().getType());
+        }
+        ItemStack currencyClaimButton = ItemUtils.getItemStack(root.getConfigurationSection("CurrencyClaimButton"));
+
+        inventory.setItem(0, claimButton);
+        inventory.setItem(1, claimableItem);
+        inventory.setItem(3, currencyItem);
+        inventory.setItem(4, currencyClaimButton);
+    }
+
+
     @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInteract(PlayerInteractEvent e) {
         if (e.getClickedBlock() == null) {
             return;
         }
-        boolean block =false;
-        if(e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getItem() != null && e.getItem().getType().name().contains("SIGN")){
-            if(e.getPlayer().isSneaking()){
+        boolean block = false;
+        if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getItem() != null && e.getItem().getType().name().contains("SIGN")) {
+            if (e.getPlayer().isSneaking()) {
                 return;
             }
-            block=true;
+            block = true;
         }
 
         final boolean isOffhandVersion = Ref.isNewerThan(8);
@@ -159,12 +198,32 @@ public class Listeners implements Listener {
 
         final Shop shop = getPluginInstance().getManager().getShop(e.getClickedBlock().getLocation());
         if (shop == null) return;
-        if(block){
+        if (block) {
             e.setCancelled(true);
             return;
         }
 
         e.setCancelled(true);
+
+
+        if (shop.isClaimable()) {
+            YamlConfiguration claimMenuConfig = YamlConfiguration.loadConfiguration(new File("plugins/DisplayShops/menus/claim-items.yml"));
+
+
+            String title = DisplayShops.getPluginInstance().getManager().color(claimMenuConfig.getString("Title", "&8Claim resources from inactive shop"));
+
+
+            Inventory inventory = Bukkit.createInventory(null, InventoryType.HOPPER, title);
+            ItemStack fillItem = ItemUtils.getItemStack(claimMenuConfig.getConfigurationSection("FillItem"));
+            for (int i : claimMenuConfig.getIntegerList("EmptySlots"))
+                inventory.setItem(i, fillItem);
+
+            setupItems(inventory, claimMenuConfig, shop);
+
+            openClaimMenu.put(e.getPlayer().getUniqueId(), new Pair<>(claimMenuConfig, shop));
+            e.getPlayer().openInventory(inventory);
+            return;
+        }
 
         final MarketRegion marketRegion = getPluginInstance().getManager().getMarketRegion(e.getClickedBlock().getLocation());
         if (marketRegion != null && marketRegion.getRenter() == null) {
@@ -669,7 +728,8 @@ public class Listeners implements Listener {
             e.blockList().stream().parallel().forEach(block -> {
                 final Shop shop = getPluginInstance().getManager().getShop(block.getLocation());
                 if (shop != null) shop.delete(true);
-            }); return;
+            });
+            return;
         }
 
         if (getPluginInstance().getConfig().getBoolean("explosive-protection.alternative-method")) {

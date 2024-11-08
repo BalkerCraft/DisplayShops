@@ -49,6 +49,7 @@ public class DShop implements Shop {
     private List<String> commands;
     private List<UUID> assistants;
     private LocationClone baseLocation;
+    private boolean isClaimable;
 
     public DShop(UUID shopId, UUID ownerUniqueId, LocationClone baseLocation, int shopItemAmount, String appearanceId) {
         this.INSTANCE = DisplayShops.getPluginInstance();
@@ -107,7 +108,8 @@ public class DShop implements Shop {
      */
     public synchronized void kill(@NotNull Player player) {
         DisplayPacket displayPacket = INSTANCE.getDisplayPacket(this, player);
-        if (displayPacket != null) displayPacket.hide(player);
+        if (displayPacket != null)
+            displayPacket.hide(player);
         INSTANCE.removeDisplayPacket(this, player);
     }
 
@@ -224,6 +226,16 @@ public class DShop implements Shop {
         }
 
         setStoredBalance(0);
+    }
+
+
+    public void setClaimable(boolean value) {
+        this.isClaimable = value;
+    }
+
+
+    public boolean isClaimable() {
+        return isClaimable;
     }
 
     /**

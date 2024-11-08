@@ -109,7 +109,9 @@ public class CustomItem {
 
                                 skullMeta.setOwnerProfile(profile);
                                 itemStack.setItemMeta(skullMeta);
-                            } catch (Exception e) {pluginInstance.log(Level.WARNING, "Failed to get the head texture \"" + uuid + "\" (" + e.getMessage() + ").");}
+                            } catch (Exception e) {
+                                pluginInstance.log(Level.WARNING, "Failed to get the head texture \"" + uuid + "\" (" + e.getMessage() + ").");
+                            }
                             return;
                         }
                     } catch (IllegalArgumentException ignored) {}
@@ -142,7 +144,8 @@ public class CustomItem {
                         profileField = skullMeta.getClass().getDeclaredField("profile");
                         profileField.setAccessible(true);
                         profileField.set(skullMeta, profile);
-                    } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+                    } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException |
+                             SecurityException e) {
                         e.printStackTrace();
                     }
                 } else { // new way

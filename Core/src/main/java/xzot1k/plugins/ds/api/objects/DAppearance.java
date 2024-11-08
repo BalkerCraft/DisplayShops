@@ -67,7 +67,8 @@ public class DAppearance extends Appearance {
                 if (appearance.contains(":")) {
                     final String[] args = appearance.split(":");
                     material = ((id = args[0]) + ":" + args[1]);
-                    if (!DisplayShops.getPluginInstance().getManager().isNotNumeric(args[2])) price = Double.parseDouble(args[2]);
+                    if (!DisplayShops.getPluginInstance().getManager().isNotNumeric(args[2]))
+                        price = Double.parseDouble(args[2]);
                     if (args.length >= 4) requirement.add(args[3]);
                 } else {
                     material = appearance;
@@ -105,9 +106,12 @@ public class DAppearance extends Appearance {
                 String[] args = offsetString.split(",");
                 if (args.length >= 3) {
                     offset = new double[3];
-                    if (!DisplayShops.getPluginInstance().getManager().isNotRawNumeric(args[0])) offset[0] = Double.parseDouble(args[0]);
-                    if (!DisplayShops.getPluginInstance().getManager().isNotRawNumeric(args[1])) offset[1] = Double.parseDouble(args[1]);
-                    if (!DisplayShops.getPluginInstance().getManager().isNotRawNumeric(args[2])) offset[2] = Double.parseDouble(args[2]);
+                    if (!DisplayShops.getPluginInstance().getManager().isNotRawNumeric(args[0]))
+                        offset[0] = Double.parseDouble(args[0]);
+                    if (!DisplayShops.getPluginInstance().getManager().isNotRawNumeric(args[1]))
+                        offset[1] = Double.parseDouble(args[1]);
+                    if (!DisplayShops.getPluginInstance().getManager().isNotRawNumeric(args[2]))
+                        offset[2] = Double.parseDouble(args[2]);
                 }
             }
 
@@ -138,7 +142,8 @@ public class DAppearance extends Appearance {
             if (mat != null) itemStack = new ItemStack(mat);
             else if (INSTANCE.isItemAdderInstalled()) {
                 dev.lone.itemsadder.api.CustomBlock customBlock = dev.lone.itemsadder.api.CustomBlock.getInstance(getMaterial());
-                if (customBlock != null) itemStack = customBlock.getItemStack();
+                if (customBlock != null)
+                    itemStack = customBlock.getItemStack();
             }
         }
 
@@ -146,7 +151,8 @@ public class DAppearance extends Appearance {
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         final Menu menu = INSTANCE.getMenu("appearance");
-        if (itemMeta == null || menu == null) return INSTANCE.updateNBT(itemStack, "ds-bbm", shop.getShopId().toString());
+        if (itemMeta == null || menu == null)
+            return INSTANCE.updateNBT(itemStack, "ds-bbm", shop.getShopId().toString());
 
         if (shop.getAppearanceId() != null && shop.getAppearanceId().equalsIgnoreCase(getId())) {
             String selectedName = menu.getConfiguration().getString("selected-format.name");
@@ -188,7 +194,8 @@ public class DAppearance extends Appearance {
             if (name != null) {
                 name = name.replace("{material}", getId().replace("_", " "));
                 String newName = (isUnlocked ? unlockedName : lockedName);
-                if (newName != null) itemMeta.setDisplayName(INSTANCE.getManager().color(newName.replace("{material}", name)));
+                if (newName != null)
+                    itemMeta.setDisplayName(INSTANCE.getManager().color(newName.replace("{material}", name)));
                 itemMeta.setLore(new ArrayList<String>() {{
                     List<String> newLore = (isUnlocked ? unlockedLore : lockedLore);
                     for (int i = -1; ++i < newLore.size(); ) {
@@ -238,12 +245,14 @@ public class DAppearance extends Appearance {
         if (materialName.contains(":")) {
             String[] args = materialName.split(":");
             materialName = args[0];
-            if (!DisplayShops.getPluginInstance().getManager().isNotNumeric(args[1])) durability = Integer.parseInt(args[1]);
+            if (!DisplayShops.getPluginInstance().getManager().isNotNumeric(args[1]))
+                durability = Integer.parseInt(args[1]);
         }
 
         Material material = Material.getMaterial(materialName);
         if (material != null) {
-            if (DisplayShops.getPluginInstance().isItemAdderInstalled()) dev.lone.itemsadder.api.CustomBlock.remove(baseBlockLocation);
+            if (DisplayShops.getPluginInstance().isItemAdderInstalled())
+                dev.lone.itemsadder.api.CustomBlock.remove(baseBlockLocation);
             block.setType(Material.AIR);
             block.setType(material);
 

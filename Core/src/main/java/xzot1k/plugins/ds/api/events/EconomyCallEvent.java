@@ -286,13 +286,17 @@ public class EconomyCallEvent extends Event implements Cancellable, ECEvent {
         return amount;
     }
 
-    public double getAmount() {return amount;}
+    public double getAmount() {
+        return amount;
+    }
 
     public void setAmount(double amount) {
         this.amount = amount;
     }
 
-    public double getTaxedAmount() {return (getAmount() + (getAmount() * getTax()));}
+    public double getTaxedAmount() {
+        return (getAmount() + (getAmount() * getTax()));
+    }
 
     public EconomyCallType getEconomyCallType() {
         return economyCallType;

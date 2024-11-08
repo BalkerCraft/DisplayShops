@@ -4,7 +4,7 @@
 
 /*
  * Decompiled with CFR 0.150.
- * 
+ *
  * Could not load the following classes:
  *  org.bukkit.Location
  *  org.bukkit.scheduler.BukkitRunnable
@@ -19,7 +19,7 @@ import xzot1k.plugins.ds.api.objects.Shop;
 import java.util.ArrayList;
 
 public class CleanupTask
-extends BukkitRunnable {
+        extends BukkitRunnable {
     private DisplayShops pluginInstance;
     private int counter;
     private int delay;
@@ -47,7 +47,8 @@ extends BukkitRunnable {
                     continue;
                 }
                 Location baseBlock = shop.getBaseLocation().asBukkitLocation();
-                if (!baseBlock.getWorld().isChunkLoaded(baseBlock.getBlockX() << 4, baseBlock.getBlockZ() << 4) || baseBlock.getBlock() != null && !baseBlock.getBlock().getType().name().contains("AIR")) continue;
+                if (!baseBlock.getWorld().isChunkLoaded(baseBlock.getBlockX() << 4, baseBlock.getBlockZ() << 4) || baseBlock.getBlock() != null && !baseBlock.getBlock().getType().name().contains("AIR"))
+                    continue;
                 this.getPluginInstance().getManager().getShopMap().remove(shop.getShopId());
                 shop.delete(true);
             }
