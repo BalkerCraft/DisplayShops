@@ -1,8 +1,13 @@
+# Build Instructions
+
+1. Build [DisplayShopsAPI](https://github.com/BalkerCraft/DisplayShopsAPI) first to maven local.
+2. Compile versions 1.18.2, 1.20.4, 1.21.1, 1.21.3 using [BuildTools](https://www.spigotmc.org/wiki/buildtools/)
+   ➥ Make sure to enable adding to check "Generate Remapped Jars" in Options.
+3. You can now build this plugin.
+
 **[Wiki](https://github.com/XZot1K/DisplayShopsAPI/wiki) | [Commands](https://github.com/XZot1K/DisplayShopsAPI/wiki/commands) | [Permissions](https://github.com/XZot1K/DisplayShopsAPI/wiki/permissions)
 | [How Does It Work?](https://github.com/XZot1K/DisplayShopsAPI/wiki/shop-guide) | [Developer API](https://github.com/XZot1K/DisplayShopsAPI/wiki/developer-api)
 | [Java Docs](https://xzot1k.github.io/DisplayShopsAPI/) | [Usage statistics](https://bstats.org/plugin/bukkit/DisplayShops/23070)**
-
-<img src=https://bstats.org/signatures/bukkit/DisplayShops.svg>
 
 ## v2.0+ code is under the "recode" branch while v1.7.x code (pre-2.0) is under the "master" branch
 
