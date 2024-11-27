@@ -233,6 +233,8 @@ public class Listeners implements Listener {
             return;
         }
 
+        e.setCancelled(true);
+
         // ensure blocked nbt is not on the item
         if (getPluginInstance().getManager().hasBlockedNBT(handItem)) {
             String message = getPluginInstance().getLangConfig().getString("set-item-blocked");

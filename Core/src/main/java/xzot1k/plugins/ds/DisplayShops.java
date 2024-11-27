@@ -7,9 +7,6 @@ package xzot1k.plugins.ds;
 import me.arcaniax.hdb.api.HeadDatabaseAPI;
 import me.devtec.shared.Ref;
 import me.devtec.shared.versioning.VersionUtils;
-import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
-import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -254,17 +251,6 @@ public class DisplayShops extends JavaPlugin implements DisplayShopsAPI {
         else if (isOutdated())
             log(Level.INFO, "There seems to be a different version on the Spigot resource page '"
                     + getLatestVersion() + "'. You are currently running '" + getDescription().getVersion() + "'.");
-
-        Metrics m = new Metrics(getPluginInstance(), 23070);
-        m.addCustomChart(new SingleLineChart("shop_amount",()->getManager().getShopMap().size()));
-        m.addCustomChart(new SimplePie("modern_displays",()->displayManager!=null?"true":"false"));
-        m.addCustomChart(new SimplePie("claimable_system",()->getConfig().getBoolean("claimable-system",false)?"true":"false"));
-        if(papi!=null)
-            m.addCustomChart(new SingleLineChart("placeholderapi_requests",()->placeholderAPI));
-        m.addCustomChart(new SingleLineChart("item_sells",()->itemSells));
-        m.addCustomChart(new SingleLineChart("item_buys",()->itemBuys));
-        m.addCustomChart(new SingleLineChart("menu_opens",()-> menuOpens));
-        m.addCustomChart(new SimplePie("sql_saving_system",()->isSQL?"true":"false"));
     }
 
     public static int menuOpens = 0;

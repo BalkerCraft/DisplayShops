@@ -20,7 +20,11 @@
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/API/pom.xml" />
+        <option value="$PROJECT_DIR$/v1_18_r1/pom.xml" />
         <option value="$PROJECT_DIR$/v1_20_R4/pom.xml" />
+        <option value="$PROJECT_DIR$/v1_20_r1/pom.xml" />
+        <option value="$PROJECT_DIR$/v1_20_r2/pom.xml" />
+        <option value="$PROJECT_DIR$/v1_20_r4/pom.xml" />
       </set>
     </option>
   </component>

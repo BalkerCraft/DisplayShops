@@ -4,6 +4,7 @@
 
 package xzot1k.plugins.ds.api;
 
+import de.tr7zw.changeme.nbtapi.NBTItem;
 import me.devtec.shared.Ref;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.lang.WordUtils;
@@ -1500,12 +1501,12 @@ public class DManager implements Manager {
         if (itemStack.getType() == Material.AIR || itemStack.getAmount() == 0) return false;
 
         // TODO fix
-       /* try {
+        try {
             // ensure blocked nbt is not on the item
-            de.tr7zw.changeme.nbtapi.NBTItem nbtItem = new de.tr7zw.changeme.nbtapi.NBTItem(itemStack);
+            NBTItem nbtItem = new NBTItem(itemStack);
             List<String> blockedNbtList = getPluginInstance().getConfig().getStringList("blocked-nbt-list");
             return blockedNbtList.stream().anyMatch(nbtItem::hasKey);
-        } catch (Exception ignored) {}*/
+        } catch (Exception ignored) {}
         return false;
     }
 

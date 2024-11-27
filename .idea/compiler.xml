@@ -6,32 +6,36 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="v1_20_r1" />
-        <module name="v1_20_r2" />
         <module name="v1_20_r3" />
-        <module name="v1_16_r1" />
         <module name="v1_18_r2" />
-        <module name="v1_17_r1" />
-        <module name="v1_15_r1" />
-        <module name="v1_16_r2" />
-        <module name="v1_19_r3" />
-        <module name="v1_16_r3" />
-        <module name="v1_14_r1" />
-        <module name="v1_19_r1" />
-        <module name="v1_19_r2" />
-        <module name="v1_18_r1" />
-        <module name="v1_11_r1" />
-        <module name="v1_9_r2" />
-        <module name="v1_10_r1" />
-        <module name="v1_12_r1" />
-        <module name="v1_13_r2" />
-        <module name="v1_13_r1" />
-        <module name="v1_9_r1" />
-        <module name="v1_8_r3" />
+        <module name="v1_21" />
         <module name="Core" />
+        <module name="v1_21_r1" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="8" />
+    <bytecodeTargetLevel target="8">
+      <module name="v1_10_r1" target="1.8" />
+      <module name="v1_11_r1" target="1.8" />
+      <module name="v1_12_r1" target="1.8" />
+      <module name="v1_13_r1" target="1.8" />
+      <module name="v1_13_r2" target="1.8" />
+      <module name="v1_14_r1" target="1.8" />
+      <module name="v1_15_r1" target="1.8" />
+      <module name="v1_16_r1" target="1.8" />
+      <module name="v1_16_r2" target="1.8" />
+      <module name="v1_16_r3" target="1.8" />
+      <module name="v1_17_r1" target="16" />
+      <module name="v1_18_r1" target="1.8" />
+      <module name="v1_19_r1" target="17" />
+      <module name="v1_19_r2" target="17" />
+      <module name="v1_19_r3" target="17" />
+      <module name="v1_20_r1" target="17" />
+      <module name="v1_20_r2" target="17" />
+      <module name="v1_20_r4" target="21" />
+      <module name="v1_8_r3" target="1.8" />
+      <module name="v1_9_r1" target="1.8" />
+      <module name="v1_9_r2" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

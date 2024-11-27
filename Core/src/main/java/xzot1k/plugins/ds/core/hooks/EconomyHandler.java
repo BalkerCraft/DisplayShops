@@ -1,7 +1,5 @@
 package xzot1k.plugins.ds.core.hooks;
 
-import com.edwardbelt.edprison.EdPrison;
-import com.willfp.ecobits.currencies.CurrencyUtils;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
@@ -21,7 +19,6 @@ import xzot1k.plugins.ds.api.objects.DataPack;
 import xzot1k.plugins.ds.api.objects.Shop;
 
 import java.io.File;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +45,6 @@ public class EconomyHandler implements EcoHandler {
         setupItemForItem();
         setupVaultEconomy();
         setupPlayerPoints();
-        setupEcoBits();
     }
 
     // pre-made registration
@@ -241,133 +237,6 @@ public class EconomyHandler implements EcoHandler {
                 }
             };
         }
-    }
-
-    private void setupEcoBits() {
-        Plugin ecoBitsPlugin = INSTANCE.getServer().getPluginManager().getPlugin("EcoBits");
-        if (ecoBitsPlugin == null) return;
-
-        for (int i = -1; ++i < com.willfp.ecobits.currencies.Currencies.values().size(); ) {
-            final com.willfp.ecobits.currencies.Currency currency = com.willfp.ecobits.currencies.Currencies.values().get(i);
-            if (currency.isRegisteredWithVault()) continue;
-            new EcoHook(currency.getId(), this) {
-                @Override
-                public String getSingularName() {
-                    return currency.getName();
-                }
-
-                @Override
-                public String getPluralName() {
-                    return currency.getName();
-                }
-
-                @Override
-                public boolean deposit(@NotNull UUID playerUniqueId, double amount) {
-                    try {
-                        final OfflinePlayer offlinePlayer = INSTANCE.getServer().getOfflinePlayer(playerUniqueId);
-                        CurrencyUtils.adjustBalance(offlinePlayer, currency, BigDecimal.valueOf(amount));
-                        return true;
-                    } catch (Exception ignored) {
-                        return false;
-                    }
-                }
-
-                @Override
-                public boolean deposit(@NotNull OfflinePlayer player, double amount) {
-                    try {
-                        CurrencyUtils.adjustBalance(player, currency, BigDecimal.valueOf(amount));
-                        return true;
-                    } catch (Exception ignored) {
-                        return false;
-                    }
-                }
-
-                @Override
-                public boolean withdraw(@NotNull UUID playerUniqueId, double amount) {
-                    final OfflinePlayer offlinePlayer = INSTANCE.getServer().getOfflinePlayer(playerUniqueId);
-                    if (CurrencyUtils.getBalance(offlinePlayer, currency).doubleValue() >= amount) {
-                        CurrencyUtils.adjustBalance(offlinePlayer, currency, BigDecimal.valueOf((amount >= 0 ? -amount : amount)));
-                        return true;
-                    } else return false;
-                }
-
-                @Override
-                public boolean withdraw(@NotNull OfflinePlayer player, double amount) {
-                    if (CurrencyUtils.getBalance(player, currency).doubleValue() >= amount) {
-                        CurrencyUtils.adjustBalance(player, currency, BigDecimal.valueOf((amount >= 0 ? -amount : amount)));
-                        return true;
-                    } else return false;
-                }
-
-                @Override
-                public double getBalance(@NotNull UUID playerUniqueId) {
-                    final OfflinePlayer offlinePlayer = INSTANCE.getServer().getOfflinePlayer(playerUniqueId);
-                    return CurrencyUtils.getBalance(offlinePlayer, currency).doubleValue();
-                }
-
-                @Override
-                public double getBalance(@NotNull OfflinePlayer player) {
-                    return CurrencyUtils.getBalance(player, currency).doubleValue();
-                }
-            };
-        }
-    }
-
-    public void setupEdPrison() {
-        if (!INSTANCE.getConfig().getBoolean("use-vault")) return;
-
-        EdPrison edPrison = (EdPrison) INSTANCE.getServer().getPluginManager().getPlugin("EdPrison");
-        if (edPrison == null) return;
-
-        //edPrison.getApi().getEconomyApi().
-
-        new EcoHook("EdPrison", this) {
-            @Override
-            public String getSingularName() {
-                return ((getVaultEconomy().currencyNameSingular() == null
-                        || getVaultEconomy().currencyNameSingular().isEmpty()) ? getVaultEconomy().getName() :
-                        getVaultEconomy().currencyNameSingular());
-            }
-
-            @Override
-            public String getPluralName() {
-                return ((getVaultEconomy().currencyNamePlural() == null
-                        || getVaultEconomy().currencyNamePlural().isEmpty()) ? getVaultEconomy().getName() : getVaultEconomy().currencyNamePlural());
-            }
-
-            @Override
-            public boolean deposit(@NotNull UUID playerUniqueId, double amount) {
-                final OfflinePlayer offlinePlayer = INSTANCE.getServer().getOfflinePlayer(playerUniqueId);
-                return getVaultEconomy().depositPlayer(offlinePlayer, amount).transactionSuccess();
-            }
-
-            @Override
-            public boolean deposit(@NotNull OfflinePlayer player, double amount) {
-                return getVaultEconomy().depositPlayer(player, amount).transactionSuccess();
-            }
-
-            @Override
-            public boolean withdraw(@NotNull UUID playerUniqueId, double amount) {
-                final OfflinePlayer offlinePlayer = INSTANCE.getServer().getOfflinePlayer(playerUniqueId);
-                return getVaultEconomy().withdrawPlayer(offlinePlayer, amount).transactionSuccess();
-            }
-
-            @Override
-            public boolean withdraw(@NotNull OfflinePlayer player, double amount) {
-                return getVaultEconomy().withdrawPlayer(player, amount).transactionSuccess();
-            }
-
-            @Override
-            public double getBalance(@NotNull UUID playerUniqueId) {
-                final OfflinePlayer offlinePlayer = INSTANCE.getServer().getOfflinePlayer(playerUniqueId);
-                return getVaultEconomy().getBalance(offlinePlayer);
-            }
-
-            @Override
-            public double getBalance(@NotNull OfflinePlayer player) {
-                return getVaultEconomy().getBalance(player);
-            }
-        };
     }
 
     // helper methods
