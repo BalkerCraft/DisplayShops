@@ -2,7 +2,7 @@
 
 1. Build [DisplayShopsAPI](https://github.com/BalkerCraft/DisplayShopsAPI) first to maven local.
 2. Compile versions 1.18.2, 1.20.4, 1.21.1, 1.21.3 using [BuildTools](https://www.spigotmc.org/wiki/buildtools/)
-   ➥ Make sure to enable adding to check "Generate Remapped Jars" in Options.
+  ➥ Make sure to enable adding to check "Generate Remapped Jars" in Options.
 3. You can now build this plugin.
 
 **[Wiki](https://github.com/XZot1K/DisplayShopsAPI/wiki) | [Commands](https://github.com/XZot1K/DisplayShopsAPI/wiki/commands) | [Permissions](https://github.com/XZot1K/DisplayShopsAPI/wiki/permissions)
